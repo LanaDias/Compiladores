@@ -19,7 +19,7 @@ Projeto acadêmico em desenvolvimento para apoiar o ensino de construção de co
 - Docker Engine ou Docker Desktop com Docker Compose
 - Navegador moderno
 
-````
+
 ## Executar
 Na raiz do projeto:
 
@@ -27,17 +27,12 @@ Na raiz do projeto:
 docker compose up --build
 ```
 
-Abra http://localhost:8080 no navegador.
 
 ## Encerrar
 ```bash
 docker compose down
 ```
 
-
-## Testar a API diretamente
-Abra http://localhost:8000/api/hello ou acesse http://localhost:8000/docs.
-````
 
 ## Estrutura
 ```text
