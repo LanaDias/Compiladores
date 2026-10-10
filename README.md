@@ -33,8 +33,10 @@ Abra http://localhost:8080 no navegador.
 docker compose down
 ```
 
+````
 ## Testar a API diretamente
 Abra http://localhost:8000/api/hello ou acesse http://localhost:8000/docs.
+````
 
 ## Estrutura
 ```text
