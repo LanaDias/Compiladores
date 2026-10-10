@@ -1,6 +1,6 @@
 # Registro da revisão científica
 
-Para cada busca, registre:
+Registra:
 - Base consultada;
 - Data da busca;
 - Consulta exata/termos utilizados;
@@ -10,4 +10,4 @@ Para cada busca, registre:
 - DOI ou URL persistente;
 - Observações sobre acesso ao texto completo.
 
-Não preencha resultados, amostras ou conclusões sem conferir o artigo original.
+
