@@ -3,7 +3,7 @@
 Projeto acadêmico em desenvolvimento para apoiar o ensino de construção de compiladores por meio de uma aplicação web interativa.
 
 ## Escopo inicial
-- Linguagem-alvo do analisador: subconjunto didático inspirado em Python.
+- Linguagem-alvo do analisador: Python.
 - Primeira entrega: aplicação web mínima com frontend, backend e Docker Compose.
 - Próximas etapas previstas: análise léxica, análise sintática, análise semântica, representação intermediária, otimização e geração de código.
 
