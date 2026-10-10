@@ -1,6 +1,6 @@
 # Registro da revisão científica
 
-Registra:
+Registrar:
 - Base consultada;
 - Data da busca;
 - Consulta exata/termos utilizados;
