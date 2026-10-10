@@ -19,6 +19,7 @@ Projeto acadêmico em desenvolvimento para apoiar o ensino de construção de co
 - Docker Engine ou Docker Desktop com Docker Compose
 - Navegador moderno
 
+````
 ## Executar
 Na raiz do projeto:
 
@@ -33,7 +34,7 @@ Abra http://localhost:8080 no navegador.
 docker compose down
 ```
 
-````
+
 ## Testar a API diretamente
 Abra http://localhost:8000/api/hello ou acesse http://localhost:8000/docs.
 ````
@@ -63,13 +64,9 @@ O compilador didático será implementado progressivamente. O primeiro subconjun
 - parênteses;
 - atribuições simples.
 
-A gramática e as regras serão documentadas e testadas antes de ampliar o subconjunto. O objetivo não é implementar toda a linguagem Python.
 
-## Pesquisa acadêmica
-Os artigos usados para justificar a ferramenta devem ser lidos e fichados antes da versão final do trabalho. Registre as referências, as bases pesquisadas, os termos de busca e a data de acesso em `docs/pesquisa/`.
 
-## Compartilhamento com o professor
-Crie um repositório no GitHub sob sua conta e compartilhe o link com o professor conforme as instruções da disciplina. O identificador informado para o professor é `rocha3runo`; confirme no GitHub o perfil correto antes de conceder acesso.
+
 
 ## Limitações atuais
 - Não há compilador implementado ainda.
