@@ -3,40 +3,348 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CompilaLab — início</title>
+  <title>CompilaLab — Laboratório de Compiladores</title>
+
   <style>
-    :root { color-scheme: light; font-family: system-ui, sans-serif; }
-    body { margin: 0; background: #f3f5f8; color: #182230; }
-    main { max-width: 760px; margin: 8vh auto; padding: 2rem; }
-    section { background: white; border: 1px solid #dbe2ea; border-radius: 18px; padding: 2rem; box-shadow: 0 8px 30px #1822300d; }
-    h1 { margin-top: 0; }
-    button { border: 0; border-radius: 10px; padding: .8rem 1rem; background: #2457c5; color: white; font-weight: 650; cursor: pointer; }
-    #result { margin-top: 1.2rem; padding: 1rem; background: #f3f5f8; border-radius: 10px; min-height: 1.5rem; }
-    .muted { color: #526173; }
+    :root {
+      font-family: system-ui, sans-serif;
+      color: #e8edf7;
+      background: #0b1020;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 22px 6%;
+      border-bottom: 1px solid #263149;
+      background: #10172a;
+    }
+
+    .brand {
+      font-size: 1.3rem;
+      font-weight: 800;
+    }
+
+    .brand span {
+      color: #7c9cff;
+    }
+
+    .subtitle {
+      color: #a6b2c8;
+      font-size: .9rem;
+      margin-top: 5px;
+    }
+
+    main {
+      width: min(1100px, 92%);
+      margin: 35px auto;
+    }
+
+    .intro {
+      margin-bottom: 25px;
+    }
+
+    .eyebrow {
+      color: #8ca8ff;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-size: .75rem;
+      font-weight: 750;
+    }
+
+    h1 {
+      margin: 8px 0;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+    }
+
+    p {
+      line-height: 1.6;
+    }
+
+    .muted {
+      color: #a6b2c8;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(250px, .8fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid #293650;
+      border-radius: 16px;
+      background: #131c30;
+      padding: 20px;
+      min-width: 0;
+    }
+
+    .panel-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 15px;
+      font-weight: 750;
+    }
+
+    .tag {
+      color: #b7c8ff;
+      background: #202e50;
+      border-radius: 7px;
+      padding: 5px 8px;
+      font-size: .75rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 280px;
+      resize: vertical;
+      border: 1px solid #34415c;
+      border-radius: 10px;
+      padding: 15px;
+      background: #090e1b;
+      color: #dce7ff;
+      font: 14px/1.7 Consolas, "Courier New", monospace;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: #7898ff;
+    }
+
+    button, select {
+      font: inherit;
+      border-radius: 9px;
+      padding: 10px 13px;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+      background: #5578ed;
+      color: white;
+      font-weight: 700;
+    }
+
+    button:hover {
+      background: #6b8aff;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    select {
+      width: 100%;
+      margin: 5px 0 15px;
+      color: #e8edf7;
+      background: #0b1020;
+      border: 1px solid #34415c;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 13px;
+    }
+
+    .secondary {
+      background: #263550;
+      color: #e8edf7;
+    }
+
+    .secondary:hover {
+      background: #344565;
+    }
+
+    #result {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 10px;
+      background: #0b1020;
+      border: 1px solid #293650;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+      min-height: 95px;
+      font-size: .9rem;
+    }
+
+    .notice {
+      border-left: 3px solid #e5b65c;
+      padding: 10px 12px;
+      background: #282316;
+      color: #e9d5a6;
+      border-radius: 5px;
+      font-size: .85rem;
+      line-height: 1.5;
+    }
+
+    footer {
+      color: #8290a8;
+      text-align: center;
+      padding: 30px 15px;
+      font-size: .85rem;
+    }
+
+    @media (max-width: 720px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      main {
+        margin-top: 25px;
+      }
+    }
   </style>
 </head>
+
 <body>
+  <header>
+    <div class="brand">Compila<span>Lab</span></div>
+    <div class="subtitle">
+      Laboratório educacional de construção de compiladores
+    </div>
+  </header>
+
   <main>
-    <section>
-      <p class="muted">Projeto educacional de compiladores</p>
-      <h1>CompilaLab</h1>
-      <p>Esta é a estrutura inicial da aplicação. Nesta etapa, vamos verificar se a interface consegue conversar com a API.</p>
-      <button id="test">Testar backend</button>
-      <div id="result" role="status" aria-live="polite">Clique no botão para testar a comunicação.</div>
+    <section class="intro">
+      <div class="eyebrow">Ambiente de aprendizagem</div>
+      <h1>Explore seu código</h1>
+      <p class="muted">
+        Escreva ou selecione um exemplo e envie o código para a API do CompilaLab.
+      </p>
     </section>
+
+    <div class="workspace">
+      <section class="panel">
+        <div class="panel-title">
+          <span>Editor de código</span>
+          <span class="tag">Python</span>
+        </div>
+
+        <textarea
+          id="code"
+          aria-label="Editor de código Python"
+          spellcheck="false"
+        >valor = 10 + 20
+print(valor)</textarea>
+
+        <div class="actions">
+          <button id="analyze">Analisar código</button>
+          <button id="clear" class="secondary">Limpar</button>
+        </div>
+
+        <div id="result" role="status" aria-live="polite">
+          Pronto para enviar seu código.
+        </div>
+      </section>
+
+      <aside class="panel">
+        <div class="panel-title">Exemplos prontos</div>
+
+        <label for="examples" class="muted">
+          Selecione um exemplo:
+        </label>
+
+        <select id="examples">
+          <option value="basic">Soma de números</option>
+          <option value="variables">Variáveis</option>
+          <option value="expression">Expressão matemática</option>
+          <option value="empty">Código vazio</option>
+        </select>
+
+        <div class="notice">
+          <strong>Limitação desta versão</strong>
+          <p>
+            O sistema envia o código à API e verifica se ele está vazio.
+            A análise léxica, sintática e semântica ainda não foi implementada.
+          </p>
+        </div>
+
+        <h3>Etapas previstas</h3>
+        <p class="muted">1. Análise léxica</p>
+        <p class="muted">2. Análise sintática</p>
+        <p class="muted">3. Análise semântica</p>
+        <p class="muted">4. Representação intermediária</p>
+      </aside>
+    </div>
   </main>
+
+  <footer>
+    CompilaLab · Projeto acadêmico de compiladores
+  </footer>
+
   <script>
-    const button = document.querySelector("#test");
+    const code = document.querySelector("#code");
     const result = document.querySelector("#result");
-    button.addEventListener("click", async () => {
-      result.textContent = "Conectando ao backend...";
+    const analyze = document.querySelector("#analyze");
+    const examples = document.querySelector("#examples");
+
+    const samples = {
+      basic: "valor = 10 + 20\nprint(valor)",
+      variables: "nome = 'CompilaLab'\nversao = 1\nprint(nome, versao)",
+      expression: "resultado = (8 + 2) * 3 - 4\nprint(resultado)",
+      empty: ""
+    };
+
+    examples.addEventListener("change", () => {
+      code.value = samples[examples.value];
+      result.textContent =
+        "Exemplo carregado. Clique em Analisar código para enviá-lo à API.";
+    });
+
+    document.querySelector("#clear").addEventListener("click", () => {
+      code.value = "";
+      result.textContent = "Editor limpo.";
+      code.focus();
+    });
+
+    analyze.addEventListener("click", async () => {
+      analyze.disabled = true;
+      result.textContent = "Enviando código para o backend...";
+
       try {
-        const response = await fetch("/api/hello");
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const response = await fetch("/api/analisar", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            codigo: code.value
+          })
+        });
+
         const data = await response.json();
-        result.textContent = `${data.message} — API do ${data.project} funcionando.`;
+
+        if (!response.ok) {
+          result.textContent =
+            "Não foi possível analisar:\n" +
+            (data.detail || "Erro ao processar o código.");
+          return;
+        }
+
+        result.textContent =
+          data.mensagem + "\n\n" +
+          "Código recebido: " + (data.recebido ? "sim" : "não") + "\n" +
+          "Tamanho: " + data.tamanho + " caracteres\n\n" +
+          data.observacao;
       } catch (error) {
-        result.textContent = "Não foi possível conectar à API. Confira se os contêineres estão ativos.";
+        result.textContent =
+          "Falha de conexão com o backend.\n" +
+          "Verifique se os contêineres estão ativos e tente novamente.";
+      } finally {
+        analyze.disabled = false;
       }
     });
   </script>
