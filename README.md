@@ -4,21 +4,25 @@
 
 O CompilaLab é um projeto acadêmico que tem como objetivo apoiar o aprendizado dos conceitos de construção de compiladores por meio de uma aplicação web interativa.
 
-Nesta segunda etapa, o foco é permitir que o usuário insira ou edite código-fonte, selecione exemplos e envie o conteúdo para uma API responsável por receber e validar a entrada.
+Nesta terceira etapa, o foco é implementar a análise léxica (Scanner), responsável por percorrer o código-fonte e identificar os tokens que compõem a linguagem.
 
 ## 2. Linguagem e escopo
 
-A linguagem definida para o projeto é Python.
+A linguagem definida como referência para o projeto é Python, considerando um subconjunto simplificado.
 
-O subconjunto planejado para as próximas etapas inclui:
+O scanner identifica as seguintes categorias:
 
-- Números inteiros.
-- Identificadores.
-- Operadores aritméticos: `+`, `-`, `*` e `/`.
-- Parênteses.
-- Atribuições simples.
+- Palavras reservadas, como `if`, `else`, `while`, `return`, `int`, `float` e `print`.
+- Identificadores, como `numero` e `valor`.
+- Números inteiros, como `10` e `20`.
+- Números reais, como `2.5` e `10.75`.
+- Operadores aritméticos e relacionais, como `+`, `-`, `*`, `/`, `=`, `==`, `!=`, `<` e `>`.
+- Delimitadores, como parênteses, chaves, colchetes, vírgulas e ponto e vírgula.
+- Comentários iniciados pelo caractere `#`.
 
-A análise léxica, sintática e semântica ainda não está implementada nesta versão.
+O scanner também identifica caracteres não reconhecidos e informa suas posições no código-fonte.
+
+A análise sintática e semântica ainda não está implementada nesta versão.
 
 ## 3. Tecnologias utilizadas
 
@@ -33,24 +37,32 @@ A análise léxica, sintática e semântica ainda não está implementada nesta 
 - Interface web com identificação do CompilaLab.
 - Editor de código-fonte com fonte monoespaçada.
 - Seleção de exemplos de código.
-- Botão para solicitar o processamento do código.
+- Botão para solicitar a análise do código.
 - Botão para limpar o editor.
 - Comunicação HTTP entre frontend e backend.
 - Envio do código em formato JSON.
 - Validação de entrada vazia no backend.
-- Apresentação do resultado retornado pela API.
-- Mensagem de erro em caso de falha de comunicação.
+- Análise léxica do código-fonte.
+- Identificação e classificação dos tokens.
+- Registro do tipo, lexema, linha e coluna de cada token.
+- Ignoração de espaços em branco e comentários.
+- Identificação de caracteres inválidos com indicação de posição.
+- Exibição dos tokens em uma tabela na interface.
+- Exibição dos erros léxicos encontrados.
+- Testes automatizados para o scanner e para a API.
 
 ## 5. Exemplos disponíveis
 
-A interface disponibiliza os seguintes exemplos:
+A interface disponibiliza exemplos para demonstrar o funcionamento da aplicação:
 
-1. **Soma de números:** demonstra atribuição e operação aritmética.
-2. **Variáveis:** demonstra atribuição de valores e utilização de identificadores.
-3. **Expressão matemática:** demonstra operadores aritméticos e parênteses.
-4. **Código vazio:** permite verificar o comportamento de validação da entrada.
+1. **Código básico:** demonstra atribuições e operações aritméticas.
+2. **Variáveis:** demonstra a utilização de identificadores.
+3. **Expressão matemática:** demonstra operadores e números.
+4. **Condição:** demonstra palavras reservadas e operadores relacionais.
+5. **Caractere inválido:** permite verificar a identificação de erros léxicos.
+6. **Código vazio:** permite verificar a validação da entrada.
 
-Os exemplos são enviados como texto para o backend. A aplicação ainda não executa os programas nem realiza sua análise léxica ou sintática.
+Os exemplos são enviados como texto para o backend. A aplicação realiza a análise léxica, mas ainda não executa os programas nem realiza a análise sintática ou semântica.
 
 ## 6. Comunicação entre frontend e backend
 
@@ -58,13 +70,24 @@ O frontend envia uma requisição HTTP `POST` para o endpoint `/api/analisar`.
 
 O corpo da requisição utiliza JSON:
 
-```json
+```
 {
   "codigo": "valor = 10 + 20\nprint(valor)"
 }
 ```
 
-Quando o código é recebido com sucesso, a API retorna informações sobre o recebimento e o tamanho do conteúdo. Entradas vazias são rejeitadas.
+A API recebe o código-fonte e executa a análise léxica. A resposta contém informações sobre o recebimento do código, os tokens identificados e os erros encontrados.
+
+Cada token apresenta os seguintes campos:
+
+- `tipo`: categoria do token.
+- `lexema`: trecho do código identificado.
+- `linha`: linha em que o token aparece.
+- `coluna`: coluna inicial do token.
+
+Os erros léxicos apresentam o tipo do erro, o lexema, a linha, a coluna e uma mensagem explicativa.
+
+O campo `sucesso` indica se a análise foi concluída sem erros léxicos. Entradas vazias são rejeitadas pela API.
 
 O endpoint `/api/health` permite verificar a saúde do backend, enquanto `/api/hello` fornece uma resposta simples de identificação da API.
 
@@ -80,7 +103,7 @@ O endpoint `/api/health` permite verificar a saúde do backend, enquanto `/api/h
 
 Na pasta raiz do projeto, execute:
 
-```bash
+```
 docker compose up --build -d
 ```
 
@@ -88,47 +111,58 @@ docker compose up --build -d
 
 Abra no navegador:
 
-http://localhost:8080
+[http://localhost:8080](http://localhost:8080)
 
 A documentação interativa da API pode ser acessada em:
 
-http://localhost:8000/docs
+[http://localhost:8000/docs](http://localhost:8000/docs)
 
 ### Consultar os serviços
 
-```bash
+```
 docker compose ps
 ```
 
 ### Encerrar a aplicação
 
-```bash
+```
 docker compose down
 ```
 
 ## 8. Testes automatizados
 
-Os testes do backend estão localizados em `backend/tests/test_main.py`.
+Os testes do backend estão localizados em `backend/tests/`.
 
 Para executá-los no Windows PowerShell, entre na pasta `backend` e execute:
 
-```powershell
+```
 .\.venv\Scripts\python.exe -m pytest -v
 ```
 
-Os testes verificam o endpoint de saúde, a resposta de identificação da API, o recebimento de código válido, a rejeição de entradas vazias e outras situações de validação.
+Os testes verificam funcionalidades da API e do scanner, incluindo:
 
-Os resultados devem ser registrados conforme as execuções efetivamente realizadas.
+- Identificação de identificadores e números.
+- Classificação de palavras reservadas.
+- Ignoração de espaços em branco e comentários.
+- Registro de linhas e colunas.
+- Identificação de caracteres inválidos.
+- Identificação de delimitadores.
+- Funcionamento dos endpoints da API.
+- Validação de entradas vazias.
+
+Na execução realizada durante o desenvolvimento, foram aprovados 12 testes (`12 passed`).
 
 ## 9. Estrutura do projeto
 
-```text
+```
 compiladores/
 ├── backend/
 │   ├── app/
-│   │   └── main.py
+│   │   ├── main.py
+│   │   └── scanner.py
 │   ├── tests/
-│   │   └── test_main.py
+│   │   ├── test_main.py
+│   │   └── test_scanner.py
 │   ├── requirements.txt
 │   └── Dockerfile
 ├── frontend/
@@ -142,13 +176,15 @@ compiladores/
 
 ## 10. Limitações conhecidas
 
-- O compilador ainda não está implementado.
-- O backend recebe e valida o código, mas não executa o programa.
-- A análise léxica, sintática e semântica será desenvolvida nas próximas etapas.
-- A interface apresenta o resultado do recebimento do código, e não o resultado de uma compilação.
+- O scanner reconhece apenas um subconjunto simplificado de construções da linguagem Python.
+- Nem todas as palavras reservadas e construções da linguagem Python são contempladas.
+- A análise léxica identifica tokens, mas não garante que o código esteja sintaticamente correto.
+- A análise sintática e semântica ainda não foi implementada.
+- O backend não executa os programas recebidos.
+- A validação léxica não cobre todas as situações possíveis da linguagem Python.
 
 ## 11. Próximas etapas
 
-As próximas etapas do projeto deverão desenvolver progressivamente os analisadores léxico, sintático e semântico, além das demais fases previstas para o compilador didático.
+As próximas etapas do projeto deverão desenvolver progressivamente a análise sintática e a análise semântica, além das demais funcionalidades previstas para o compilador didático.
 
-O desenvolvimento será acompanhado por testes automatizados para verificar novas funcionalidades e prevenir regressões.
+O desenvolvimento continuará acompanhado por testes automatizados para verificar as funcionalidades implementadas e prevenir regressões.
