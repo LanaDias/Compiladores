@@ -105,6 +105,7 @@
     }
 
     textarea {
+      display: block;
       width: 100%;
       min-height: 280px;
       resize: vertical;
@@ -174,10 +175,71 @@
       border-radius: 10px;
       background: #0b1020;
       border: 1px solid #293650;
+      overflow-x: auto;
       overflow-wrap: anywhere;
-      white-space: pre-wrap;
       min-height: 95px;
       font-size: .9rem;
+    }
+
+    #result .status {
+      margin: 0 0 12px;
+      font-weight: 750;
+    }
+
+    #result h3 {
+      margin: 20px 0 10px;
+      font-size: 1rem;
+    }
+
+    .token-count {
+      color: #a6b2c8;
+      margin: 8px 0 14px;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    #result table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .85rem;
+    }
+
+    #result th,
+    #result td {
+      border: 1px solid #34415c;
+      padding: 8px;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+
+    #result th {
+      background: #202e50;
+      color: #e8edf7;
+    }
+
+    #result td {
+      color: #dce7ff;
+    }
+
+    .success-message {
+      color: #86efac;
+    }
+
+    .error-message {
+      color: #fca5a5;
+    }
+
+    .error-item {
+      margin: 8px 0;
+      padding: 10px;
+      border-left: 3px solid #f87171;
+      background: #301c28;
+      color: #fecaca;
+      border-radius: 5px;
+      overflow-wrap: anywhere;
     }
 
     .notice {
@@ -188,6 +250,10 @@
       border-radius: 5px;
       font-size: .85rem;
       line-height: 1.5;
+    }
+
+    .notice p {
+      margin-bottom: 0;
     }
 
     footer {
@@ -230,23 +296,23 @@
       <section class="panel">
         <div class="panel-title">
           <span>Editor de código</span>
-          <span class="tag">Python</span>
+          <span class="tag">Análise léxica</span>
         </div>
 
         <textarea
           id="code"
-          aria-label="Editor de código Python"
+          aria-label="Editor de código"
           spellcheck="false"
         >valor = 10 + 20
 print(valor)</textarea>
 
         <div class="actions">
-          <button id="analyze">Analisar código</button>
-          <button id="clear" class="secondary">Limpar</button>
+          <button id="analyze" type="button">Analisar código</button>
+          <button id="clear" class="secondary" type="button">Limpar</button>
         </div>
 
         <div id="result" role="status" aria-live="polite">
-          Pronto para enviar seu código.
+          Pronto para analisar seu código.
         </div>
       </section>
 
@@ -261,19 +327,22 @@ print(valor)</textarea>
           <option value="basic">Soma de números</option>
           <option value="variables">Variáveis</option>
           <option value="expression">Expressão matemática</option>
+          <option value="condition">Condição</option>
+          <option value="invalid">Caractere inválido</option>
           <option value="empty">Código vazio</option>
         </select>
 
         <div class="notice">
-          <strong>Limitação desta versão</strong>
+          <strong>Etapa atual: análise léxica</strong>
           <p>
-            O sistema envia o código à API e verifica se ele está vazio.
-            A análise léxica, sintática e semântica ainda não foi implementada.
+            O sistema identifica tokens, classifica lexemas, registra
+            linha e coluna e informa caracteres inválidos. A análise
+            sintática e semântica será desenvolvida nas próximas etapas.
           </p>
         </div>
 
-        <h3>Etapas previstas</h3>
-        <p class="muted">1. Análise léxica</p>
+        <h3>Etapas do projeto</h3>
+        <p class="muted">1. Análise léxica — etapa atual</p>
         <p class="muted">2. Análise sintática</p>
         <p class="muted">3. Análise semântica</p>
         <p class="muted">4. Representação intermediária</p>
@@ -289,12 +358,15 @@ print(valor)</textarea>
     const code = document.querySelector("#code");
     const result = document.querySelector("#result");
     const analyze = document.querySelector("#analyze");
+    const clear = document.querySelector("#clear");
     const examples = document.querySelector("#examples");
 
     const samples = {
       basic: "valor = 10 + 20\nprint(valor)",
-      variables: "nome = 'CompilaLab'\nversao = 1\nprint(nome, versao)",
+      variables: "numero = 42\naltura = 2.5\nprint(numero)",
       expression: "resultado = (8 + 2) * 3 - 4\nprint(resultado)",
+      condition: "if numero > 5:\n    print(numero)",
+      invalid: "numero = 10 @ 20",
       empty: ""
     };
 
@@ -304,11 +376,122 @@ print(valor)</textarea>
         "Exemplo carregado. Clique em Analisar código para enviá-lo à API.";
     });
 
-    document.querySelector("#clear").addEventListener("click", () => {
+    clear.addEventListener("click", () => {
       code.value = "";
+      examples.value = "empty";
       result.textContent = "Editor limpo.";
       code.focus();
     });
+
+    function criarElemento(tag, texto, classe) {
+      const elemento = document.createElement(tag);
+
+      if (texto !== undefined && texto !== null) {
+        elemento.textContent = String(texto);
+      }
+
+      if (classe) {
+        elemento.className = classe;
+      }
+
+      return elemento;
+    }
+
+    function mostrarTabelaTokens(tokens) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "table-wrapper";
+
+      const tabela = document.createElement("table");
+      const thead = document.createElement("thead");
+      const linhaCabecalho = document.createElement("tr");
+
+      ["Tipo", "Lexema", "Linha", "Coluna"].forEach((titulo) => {
+        linhaCabecalho.appendChild(criarElemento("th", titulo));
+      });
+
+      thead.appendChild(linhaCabecalho);
+      tabela.appendChild(thead);
+
+      const tbody = document.createElement("tbody");
+
+      tokens.forEach((token) => {
+        const linha = document.createElement("tr");
+
+        [
+          token.tipo,
+          token.lexema,
+          token.linha,
+          token.coluna
+        ].forEach((valor) => {
+          linha.appendChild(criarElemento("td", valor));
+        });
+
+        tbody.appendChild(linha);
+      });
+
+      tabela.appendChild(tbody);
+      wrapper.appendChild(tabela);
+
+      return wrapper;
+    }
+
+    function mostrarResultado(data) {
+      result.replaceChildren();
+
+      const sucesso = data.sucesso === true;
+      const status = criarElemento(
+        "p",
+        sucesso
+          ? "Análise léxica concluída sem erros."
+          : "Análise léxica concluída com erros.",
+        sucesso ? "status success-message" : "status error-message"
+      );
+
+      result.appendChild(status);
+
+      result.appendChild(
+        criarElemento(
+          "p",
+          `Código recebido: sim\nTamanho: ${data.tamanho} caracteres`
+        )
+      );
+
+      const tokens = Array.isArray(data.tokens) ? data.tokens : [];
+      const erros = Array.isArray(data.erros) ? data.erros : [];
+
+      result.appendChild(
+        criarElemento("h3", `Tokens identificados (${tokens.length})`)
+      );
+
+      if (tokens.length > 0) {
+        result.appendChild(mostrarTabelaTokens(tokens));
+      } else {
+        result.appendChild(
+          criarElemento("p", "Nenhum token foi identificado.")
+        );
+      }
+
+      result.appendChild(
+        criarElemento("h3", `Erros léxicos (${erros.length})`)
+      );
+
+      if (erros.length === 0) {
+        result.appendChild(
+          criarElemento("p", "Nenhum erro léxico encontrado.")
+        );
+      } else {
+        erros.forEach((erro) => {
+          const mensagem =
+            `${erro.tipo || "ERRO_LEXICO"}: ` +
+            `${erro.mensagem || "Erro léxico não especificado."} ` +
+            `(linha ${erro.linha}, coluna ${erro.coluna})`;
+
+          result.appendChild(
+            criarElemento("div", mensagem, "error-item")
+          );
+        });
+      }
+    }
 
     analyze.addEventListener("click", async () => {
       analyze.disabled = true;
@@ -330,19 +513,19 @@ print(valor)</textarea>
         if (!response.ok) {
           result.textContent =
             "Não foi possível analisar:\n" +
-            (data.detail || "Erro ao processar o código.");
+            (
+              typeof data.detail === "string"
+                ? data.detail
+                : "Erro ao processar o código."
+            );
           return;
         }
 
-        result.textContent =
-          data.mensagem + "\n\n" +
-          "Código recebido: " + (data.recebido ? "sim" : "não") + "\n" +
-          "Tamanho: " + data.tamanho + " caracteres\n\n" +
-          data.observacao;
+        mostrarResultado(data);
       } catch (error) {
         result.textContent =
           "Falha de conexão com o backend.\n" +
-          "Verifique se os contêineres estão ativos e tente novamente.";
+          "Verifique se os serviços estão ativos e tente novamente.";
       } finally {
         analyze.disabled = false;
       }

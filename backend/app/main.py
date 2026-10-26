@@ -1,11 +1,14 @@
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+from app.scanner import analisar_lexicamente
+
 app = FastAPI(
     title="CompilaLab API",
-    description="API educacional para receber e validar código-fonte.",
-    version="0.2.0",
+    description="API educacional para análise léxica de código-fonte.",
+    version="0.3.0",
 )
 
 app.add_middleware(
@@ -31,7 +34,7 @@ def hello():
     return {
         "message": "Hello, World!",
         "project": "CompilaLab",
-        "stage": "estrutura inicial",
+        "stage": "análise léxica",
     }
 
 
@@ -45,12 +48,18 @@ def analisar(request: CodigoRequest):
             detail="O código não pode estar vazio.",
         )
 
+    resultado = analisar_lexicamente(codigo)
+
     return {
-        "mensagem": "Código recebido com sucesso.",
+        "mensagem": (
+            "Análise léxica concluída."
+            if resultado["sucesso"]
+            else "Análise léxica concluída com erros."
+        ),
         "recebido": True,
         "tamanho": len(codigo),
         "codigo": codigo,
-        "observacao": (
-            "A análise léxica e sintática ainda não foi implementada."
-        ),
+        "sucesso": resultado["sucesso"],
+        "tokens": resultado["tokens"],
+        "erros": resultado["erros"],
     }
