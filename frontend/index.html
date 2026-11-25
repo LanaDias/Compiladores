@@ -281,6 +281,116 @@
       font-size: .85rem;
     }
 
+    /* VISUALIZAÇÃO DA AST */
+
+    .ast-tree {
+      overflow: auto;
+      padding: 20px 10px;
+      background: #090e1b;
+      border: 1px solid #293650;
+      border-radius: 10px;
+      margin-top: 12px;
+    }
+
+    .ast-tree ul {
+      display: flex;
+      justify-content: center;
+      padding-top: 22px;
+      position: relative;
+      margin: 0;
+      padding-left: 0;
+    }
+
+    .ast-tree li {
+      list-style: none;
+      text-align: center;
+      position: relative;
+      padding: 22px 8px 0;
+    }
+
+    .ast-tree li::before,
+    .ast-tree li::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 50%;
+      width: 50%;
+      height: 22px;
+      border-top: 2px solid #5578ed;
+    }
+
+    .ast-tree li::after {
+      right: auto;
+      left: 50%;
+      border-left: 2px solid #5578ed;
+    }
+
+    .ast-tree li:only-child::before,
+    .ast-tree li:only-child::after {
+      display: none;
+    }
+
+    .ast-tree li:only-child {
+      padding-top: 0;
+    }
+
+    .ast-tree li:first-child::before,
+    .ast-tree li:last-child::after {
+      border: 0;
+    }
+
+    .ast-tree li:last-child::before {
+      border-right: 2px solid #5578ed;
+      border-radius: 0 6px 0 0;
+    }
+
+    .ast-tree li:first-child::after {
+      border-radius: 6px 0 0 0;
+    }
+
+    .ast-tree ul ul::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 50%;
+      height: 22px;
+      border-left: 2px solid #5578ed;
+    }
+
+    .ast-node {
+      display: inline-flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 10px 13px;
+      min-width: 110px;
+      max-width: 190px;
+      background: #202e50;
+      border: 1px solid #7898ff;
+      border-radius: 9px;
+      color: #e8edf7;
+      font-size: .8rem;
+      overflow-wrap: anywhere;
+    }
+
+    .ast-node strong {
+      color: #b7c8ff;
+    }
+
+    .ast-node small {
+      color: #a6b2c8;
+      font-size: .7rem;
+    }
+
+    .ast-json {
+      margin-top: 15px;
+    }
+
+    .ast-json summary {
+      cursor: pointer;
+      color: #b7c8ff;
+      padding: 8px 0;
+    }
+
     @media (max-width: 720px) {
       .workspace {
         grid-template-columns: 1fr;
@@ -683,13 +793,77 @@ print(valor)</textarea>
       const ast = sintatico.ast;
 
       if (ast) {
-        const arvore = document.createElement("pre");
-        arvore.textContent = JSON.stringify(ast, null, 2);
+        function criarNoVisual(no) {
+          const item = document.createElement("li");
 
-        areaAst.appendChild(arvore);
+          const caixa = document.createElement("div");
+          caixa.className = "ast-node";
+
+          caixa.appendChild(
+            criarElemento("strong", no.tipo || "NÓ")
+          );
+
+          if (
+            no.atributos &&
+            Object.keys(no.atributos).length > 0
+          ) {
+            Object.entries(no.atributos).forEach(([chave, valor]) => {
+              caixa.appendChild(
+                criarElemento("small", `${chave}: ${valor}`)
+              );
+            });
+          }
+
+          if (no.linha !== undefined) {
+            caixa.appendChild(
+              criarElemento(
+                "small",
+                `Linha ${no.linha}, coluna ${no.coluna ?? "?"}`
+              )
+            );
+          }
+
+          item.appendChild(caixa);
+
+          if (Array.isArray(no.filhos) && no.filhos.length > 0) {
+            const lista = document.createElement("ul");
+
+            no.filhos.forEach((filho) => {
+              lista.appendChild(criarNoVisual(filho));
+            });
+
+            item.appendChild(lista);
+          }
+
+          return item;
+        }
+
+        const visualizacao = document.createElement("div");
+        visualizacao.className = "ast-tree";
+
+        const raiz = document.createElement("ul");
+        raiz.appendChild(criarNoVisual(ast));
+
+        visualizacao.appendChild(raiz);
+        areaAst.appendChild(visualizacao);
+
+        // Mantém o JSON disponível para consulta
+        const detalhes = document.createElement("details");
+        detalhes.className = "ast-json";
+
+        detalhes.appendChild(
+          criarElemento("summary", "Ver AST em JSON")
+        );
+
+        const arvoreJson = document.createElement("pre");
+        arvoreJson.textContent = JSON.stringify(ast, null, 2);
+
+        detalhes.appendChild(arvoreJson);
+        areaAst.appendChild(detalhes);
 
         astAtual = ast;
         botaoExportar.disabled = false;
+
       } else {
         areaAst.appendChild(
           criarElemento("p", "AST não disponível.")
