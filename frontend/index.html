@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="pt-BR">
 <head>
@@ -141,8 +142,8 @@
     }
 
     button:disabled {
-      opacity: .6;
-      cursor: wait;
+      opacity: .5;
+      cursor: not-allowed;
     }
 
     select {
@@ -169,7 +170,7 @@
       background: #344565;
     }
 
-    #result {
+    .result-panel {
       margin-top: 18px;
       padding: 14px;
       border-radius: 10px;
@@ -177,51 +178,21 @@
       border: 1px solid #293650;
       overflow-x: auto;
       overflow-wrap: anywhere;
-      min-height: 95px;
+      min-height: 50px;
       font-size: .9rem;
     }
 
-    #result .status {
-      margin: 0 0 12px;
-      font-weight: 750;
-    }
-
-    #result h3 {
-      margin: 20px 0 10px;
+    .result-panel h3 {
+      margin: 12px 0 10px;
       font-size: 1rem;
     }
 
-    .token-count {
-      color: #a6b2c8;
-      margin: 8px 0 14px;
+    .result-panel p {
+      margin: 8px 0;
     }
 
-    .table-wrapper {
-      width: 100%;
-      overflow-x: auto;
-    }
-
-    #result table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: .85rem;
-    }
-
-    #result th,
-    #result td {
-      border: 1px solid #34415c;
-      padding: 8px;
-      text-align: left;
-      overflow-wrap: anywhere;
-    }
-
-    #result th {
-      background: #202e50;
-      color: #e8edf7;
-    }
-
-    #result td {
-      color: #dce7ff;
+    .status {
+      font-weight: 750;
     }
 
     .success-message {
@@ -242,6 +213,47 @@
       overflow-wrap: anywhere;
     }
 
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin: 10px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .85rem;
+    }
+
+    th, td {
+      border: 1px solid #34415c;
+      padding: 8px;
+      text-align: left;
+      overflow-wrap: anywhere;
+    }
+
+    th {
+      background: #202e50;
+      color: #e8edf7;
+    }
+
+    td {
+      color: #dce7ff;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: #090e1b;
+      border: 1px solid #293650;
+      border-radius: 8px;
+      padding: 12px;
+      color: #dce7ff;
+      font-size: .82rem;
+      line-height: 1.5;
+      overflow-x: auto;
+    }
+
     .notice {
       border-left: 3px solid #e5b65c;
       padding: 10px 12px;
@@ -254,6 +266,12 @@
 
     .notice p {
       margin-bottom: 0;
+    }
+
+    .section-title {
+      margin-top: 25px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #293650;
     }
 
     footer {
@@ -296,7 +314,7 @@
       <section class="panel">
         <div class="panel-title">
           <span>Editor de código</span>
-          <span class="tag">Análise léxica</span>
+          <span class="tag">Etapa 4</span>
         </div>
 
         <textarea
@@ -311,8 +329,34 @@ print(valor)</textarea>
           <button id="clear" class="secondary" type="button">Limpar</button>
         </div>
 
-        <div id="result" role="status" aria-live="polite">
+        <div id="result" class="result-panel" role="status" aria-live="polite">
           Pronto para analisar seu código.
+        </div>
+
+        <section id="resultado-lexico" class="result-panel">
+          <h3>Análise Léxica</h3>
+          <p class="muted">Aguardando análise.</p>
+        </section>
+
+        <section id="resultado-sintatico" class="result-panel">
+          <h3>Análise Sintática</h3>
+          <p class="muted">Aguardando análise.</p>
+        </section>
+
+        <section id="resultado-ast" class="result-panel">
+          <h3>Árvore Sintática Abstrata (AST)</h3>
+          <p class="muted">Aguardando análise.</p>
+        </section>
+
+        <div class="actions">
+          <button
+            id="exportar-ast"
+            class="secondary"
+            type="button"
+            disabled
+          >
+            Exportar AST em JSON
+          </button>
         </div>
       </section>
 
@@ -333,16 +377,16 @@ print(valor)</textarea>
         </select>
 
         <div class="notice">
-          <strong>Etapa atual: análise léxica</strong>
+          <strong>Etapa atual: análise léxica e sintática</strong>
           <p>
-            O sistema identifica tokens, classifica lexemas, registra
-            linha e coluna e informa caracteres inválidos. A análise
-            sintática e semântica será desenvolvida nas próximas etapas.
+            O sistema identifica tokens, verifica a estrutura do código,
+            apresenta erros sintáticos e constrói a Árvore Sintática
+            Abstrata (AST).
           </p>
         </div>
 
         <h3>Etapas do projeto</h3>
-        <p class="muted">1. Análise léxica — etapa atual</p>
+        <p class="muted">1. Análise léxica</p>
         <p class="muted">2. Análise sintática</p>
         <p class="muted">3. Análise semântica</p>
         <p class="muted">4. Representação intermediária</p>
@@ -361,6 +405,13 @@ print(valor)</textarea>
     const clear = document.querySelector("#clear");
     const examples = document.querySelector("#examples");
 
+    const areaLexico = document.querySelector("#resultado-lexico");
+    const areaSintatico = document.querySelector("#resultado-sintatico");
+    const areaAst = document.querySelector("#resultado-ast");
+    const botaoExportar = document.querySelector("#exportar-ast");
+
+    let astAtual = null;
+
     const samples = {
       basic: "valor = 10 + 20\nprint(valor)",
       variables: "numero = 42\naltura = 2.5\nprint(numero)",
@@ -372,6 +423,8 @@ print(valor)</textarea>
 
     examples.addEventListener("change", () => {
       code.value = samples[examples.value];
+      limparResultados();
+
       result.textContent =
         "Exemplo carregado. Clique em Analisar código para enviá-lo à API.";
     });
@@ -379,6 +432,7 @@ print(valor)</textarea>
     clear.addEventListener("click", () => {
       code.value = "";
       examples.value = "empty";
+      limparResultados();
       result.textContent = "Editor limpo.";
       code.focus();
     });
@@ -395,6 +449,26 @@ print(valor)</textarea>
       }
 
       return elemento;
+    }
+
+    function limparResultados() {
+      astAtual = null;
+      botaoExportar.disabled = true;
+
+      areaLexico.replaceChildren(
+        criarElemento("h3", "Análise Léxica"),
+        criarElemento("p", "Aguardando análise.", "muted")
+      );
+
+      areaSintatico.replaceChildren(
+        criarElemento("h3", "Análise Sintática"),
+        criarElemento("p", "Aguardando análise.", "muted")
+      );
+
+      areaAst.replaceChildren(
+        criarElemento("h3", "Árvore Sintática Abstrata (AST)"),
+        criarElemento("p", "Aguardando análise.", "muted")
+      );
     }
 
     function mostrarTabelaTokens(tokens) {
@@ -423,7 +497,7 @@ print(valor)</textarea>
           token.linha,
           token.coluna
         ].forEach((valor) => {
-          linha.appendChild(criarElemento("td", valor));
+          linha.appendChild(criarElemento("td", valor ?? ""));
         });
 
         tbody.appendChild(linha);
@@ -435,66 +509,227 @@ print(valor)</textarea>
       return wrapper;
     }
 
+    function mostrarErros(area, erros, mensagemVazia) {
+      if (!Array.isArray(erros) || erros.length === 0) {
+        area.appendChild(
+          criarElemento("p", mensagemVazia, "success-message")
+        );
+        return;
+      }
+
+      erros.forEach((erro) => {
+        let mensagem;
+
+        if (typeof erro === "string") {
+          mensagem = erro;
+        } else {
+          mensagem =
+            `${erro.tipo || "ERRO"}: ` +
+            `${erro.mensagem || "Erro não especificado."} ` +
+            `(linha ${erro.linha ?? "?"}, coluna ${erro.coluna ?? "?"})`;
+        }
+
+        area.appendChild(
+          criarElemento("div", mensagem, "error-item")
+        );
+      });
+    }
+
     function mostrarResultado(data) {
       result.replaceChildren();
 
       const sucesso = data.sucesso === true;
-      const status = criarElemento(
-        "p",
-        sucesso
-          ? "Análise léxica concluída sem erros."
-          : "Análise léxica concluída com erros.",
-        sucesso ? "status success-message" : "status error-message"
-      );
-
-      result.appendChild(status);
 
       result.appendChild(
         criarElemento(
           "p",
-          `Código recebido: sim\nTamanho: ${data.tamanho} caracteres`
+          sucesso
+            ? "Requisição processada sem erros gerais."
+            : "A análise encontrou problemas.",
+          sucesso ? "status success-message" : "status error-message"
         )
       );
 
-      const tokens = Array.isArray(data.tokens) ? data.tokens : [];
-      const erros = Array.isArray(data.erros) ? data.erros : [];
+      result.appendChild(
+        criarElemento(
+          "p",
+          `Tamanho do código: ${data.tamanho ?? code.value.length} caracteres`
+        )
+      );
 
       result.appendChild(
-        criarElemento("h3", `Tokens identificados (${tokens.length})`)
+        criarElemento(
+          "p",
+          `Tokens identificados: ${
+            Array.isArray(data.tokens) ? data.tokens.length : 0
+          }`
+        )
+      );
+
+      mostrarAnaliseCompleta(data);
+    }
+
+    function mostrarAnaliseCompleta(data) {
+      areaLexico.replaceChildren();
+      areaSintatico.replaceChildren();
+      areaAst.replaceChildren();
+
+      const tokens = Array.isArray(data.tokens) ? data.tokens : [];
+      const errosLexicos = Array.isArray(data.erros) ? data.erros : [];
+
+      // ANÁLISE LÉXICA
+      areaLexico.appendChild(
+        criarElemento("h3", "Análise Léxica")
+      );
+
+      const sucessoLexico = data.lexico
+        ? data.lexico.sucesso === true
+        : data.sucesso === true;
+
+      areaLexico.appendChild(
+        criarElemento(
+          "p",
+          sucessoLexico
+            ? "Análise léxica concluída sem erros."
+            : "Foram encontrados erros léxicos.",
+          sucessoLexico ? "success-message" : "error-message"
+        )
+      );
+
+      areaLexico.appendChild(
+        criarElemento("p", `Tokens identificados: ${tokens.length}`)
       );
 
       if (tokens.length > 0) {
-        result.appendChild(mostrarTabelaTokens(tokens));
+        areaLexico.appendChild(mostrarTabelaTokens(tokens));
       } else {
-        result.appendChild(
+        areaLexico.appendChild(
           criarElemento("p", "Nenhum token foi identificado.")
         );
       }
 
-      result.appendChild(
-        criarElemento("h3", `Erros léxicos (${erros.length})`)
+      areaLexico.appendChild(
+        criarElemento("h3", `Erros léxicos (${errosLexicos.length})`)
       );
 
-      if (erros.length === 0) {
-        result.appendChild(
-          criarElemento("p", "Nenhum erro léxico encontrado.")
-        );
-      } else {
-        erros.forEach((erro) => {
-          const mensagem =
-            `${erro.tipo || "ERRO_LEXICO"}: ` +
-            `${erro.mensagem || "Erro léxico não especificado."} ` +
-            `(linha ${erro.linha}, coluna ${erro.coluna})`;
+      mostrarErros(
+        areaLexico,
+        errosLexicos,
+        "Nenhum erro léxico encontrado."
+      );
 
-          result.appendChild(
-            criarElemento("div", mensagem, "error-item")
-          );
-        });
+      // ANÁLISE SINTÁTICA
+      areaSintatico.appendChild(
+        criarElemento("h3", "Análise Sintática")
+      );
+
+      const sintatico = data.sintatico;
+
+      if (!sintatico || sintatico.ignorada === true) {
+        areaSintatico.appendChild(
+          criarElemento(
+            "p",
+            "A análise sintática não foi realizada."
+          )
+        );
+
+        areaAst.appendChild(
+          criarElemento("h3", "Árvore Sintática Abstrata (AST)")
+        );
+
+        areaAst.appendChild(
+          criarElemento("p", "AST não disponível.")
+        );
+
+        astAtual = null;
+        botaoExportar.disabled = true;
+        return;
+      }
+
+      const errosSintaticos = Array.isArray(sintatico.erros)
+        ? sintatico.erros
+        : [];
+
+      areaSintatico.appendChild(
+        criarElemento(
+          "p",
+          sintatico.sucesso
+            ? "Código sintaticamente válido."
+            : "Foram encontrados erros sintáticos.",
+          sintatico.sucesso
+            ? "success-message"
+            : "error-message"
+        )
+      );
+
+      areaSintatico.appendChild(
+        criarElemento(
+          "h3",
+          `Erros sintáticos (${errosSintaticos.length})`
+        )
+      );
+
+      mostrarErros(
+        areaSintatico,
+        errosSintaticos,
+        "Nenhum erro sintático encontrado."
+      );
+
+      // ÁRVORE SINTÁTICA ABSTRATA
+      areaAst.appendChild(
+        criarElemento("h3", "Árvore Sintática Abstrata (AST)")
+      );
+
+      const ast = sintatico.ast;
+
+      if (ast) {
+        const arvore = document.createElement("pre");
+        arvore.textContent = JSON.stringify(ast, null, 2);
+
+        areaAst.appendChild(arvore);
+
+        astAtual = ast;
+        botaoExportar.disabled = false;
+      } else {
+        areaAst.appendChild(
+          criarElemento("p", "AST não disponível.")
+        );
+
+        astAtual = null;
+        botaoExportar.disabled = true;
       }
     }
 
+    botaoExportar.addEventListener("click", () => {
+      if (!astAtual) {
+        return;
+      }
+
+      const conteudo = JSON.stringify(astAtual, null, 2);
+
+      const arquivo = new Blob(
+        [conteudo],
+        { type: "application/json" }
+      );
+
+      const url = URL.createObjectURL(arquivo);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = "ast.json";
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      URL.revokeObjectURL(url);
+    });
+
     analyze.addEventListener("click", async () => {
       analyze.disabled = true;
+      botaoExportar.disabled = true;
+      astAtual = null;
+
       result.textContent = "Enviando código para o backend...";
 
       try {
@@ -508,24 +743,40 @@ print(valor)</textarea>
           })
         });
 
-        const data = await response.json();
+        let data;
+
+        try {
+          data = await response.json();
+        } catch {
+          throw new Error("O backend retornou uma resposta inválida.");
+        }
 
         if (!response.ok) {
-          result.textContent =
-            "Não foi possível analisar:\n" +
-            (
-              typeof data.detail === "string"
-                ? data.detail
-                : "Erro ao processar o código."
-            );
-          return;
+          const detalhe = typeof data.detail === "string"
+            ? data.detail
+            : "Erro ao processar o código.";
+
+          throw new Error(detalhe);
         }
 
         mostrarResultado(data);
+
       } catch (error) {
-        result.textContent =
-          "Falha de conexão com o backend.\n" +
-          "Verifique se os serviços estão ativos e tente novamente.";
+        result.replaceChildren(
+          criarElemento(
+            "p",
+            "Não foi possível concluir a análise.",
+            "status error-message"
+          ),
+          criarElemento(
+            "p",
+            error.message ||
+              "Verifique se os serviços estão ativos e tente novamente."
+          )
+        );
+
+        limparResultados();
+
       } finally {
         analyze.disabled = false;
       }
