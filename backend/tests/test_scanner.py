@@ -56,8 +56,51 @@ def test_identifica_delimitadores():
     lexemas = [t["lexema"] for t in resultado["tokens"]]
 
     assert lexemas == ["(", "x", ",", "y", ")", ";"]
-    assert all(t["tipo"] == "DELIMITADOR"
-               for t in [resultado["tokens"][0],
-                         resultado["tokens"][2],
-                         resultado["tokens"][4],
-                         resultado["tokens"][5]])
+    assert all(
+        t["tipo"] == "DELIMITADOR"
+        for t in [
+            resultado["tokens"][0],
+            resultado["tokens"][2],
+            resultado["tokens"][4],
+            resultado["tokens"][5],
+        ]
+    )
+
+
+def test_identifica_operadores_logicos():
+    resultado = analisar_lexicamente("a and b or not c")
+
+    assert resultado["sucesso"] is True
+    assert [t["lexema"] for t in resultado["tokens"]] == [
+        "a", "and", "b", "or", "not", "c"
+    ]
+    assert resultado["tokens"][1]["tipo"] == "PALAVRA_RESERVADA"
+    assert resultado["tokens"][3]["tipo"] == "PALAVRA_RESERVADA"
+    assert resultado["tokens"][4]["tipo"] == "PALAVRA_RESERVADA"
+
+
+def test_identifica_operadores_compostos():
+    resultado = analisar_lexicamente("a == b != c <= d >= e")
+
+    assert resultado["sucesso"] is True
+    assert [t["lexema"] for t in resultado["tokens"]] == [
+        "a", "==", "b", "!=", "c", "<=", "d", ">=", "e"
+    ]
+
+
+def test_identifica_identificadores_com_underscore():
+    resultado = analisar_lexicamente("meu_numero = valor2")
+
+    assert resultado["sucesso"] is True
+    assert [t["tipo"] for t in resultado["tokens"]] == [
+        "IDENTIFICADOR",
+        "OPERADOR",
+        "IDENTIFICADOR",
+    ]
+
+
+def test_identifica_numero_malformado():
+    resultado = analisar_lexicamente("numero = 12.3.4")
+
+    assert resultado["sucesso"] is False
+    assert len(resultado["erros"]) >= 1

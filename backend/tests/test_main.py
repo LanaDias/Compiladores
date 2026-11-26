@@ -1,4 +1,3 @@
-
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -19,7 +18,8 @@ def test_hello():
 
 
 def test_analisar_codigo_valido():
-    codigo = "numero = 10"
+    codigo = "int numero = 10;"
+
     response = client.post(
         "/api/analisar",
         json={"codigo": codigo},
@@ -28,12 +28,51 @@ def test_analisar_codigo_valido():
     assert response.status_code == 200
 
     data = response.json()
+
     assert data["recebido"] is True
     assert data["codigo"] == codigo
     assert data["sucesso"] is True
+
     assert data["lexico"]["sucesso"] is True
     assert data["sintatico"]["sucesso"] is True
     assert data["sintatico"]["ast"]["tipo"] == "PROGRAMA"
+
+    assert data["semantico"]["sucesso"] is True
+    assert data["semantico"]["erros"] == []
+
+    simbolos = data["semantico"]["tabelaSimbolos"]
+
+    assert len(simbolos) == 1
+    assert simbolos[0]["nome"] == "numero"
+    assert simbolos[0]["tipo"] == "int"
+
+
+def test_analisar_codigo_com_erro_semantico():
+    codigo = "print(total);"
+
+    response = client.post(
+        "/api/analisar",
+        json={"codigo": codigo},
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["lexico"]["sucesso"] is True
+    assert data["sintatico"]["sucesso"] is True
+
+    assert data["semantico"]["sucesso"] is False
+    assert data["semantico"]["ignorada"] is False
+
+    assert len(data["semantico"]["erros"]) > 0
+
+    erro = data["semantico"]["erros"][0]
+
+    assert erro["tipo"] == "ERRO_SEMANTICO"
+    assert erro["regra"] == "IDENTIFICADOR_NAO_DECLARADO"
+    assert erro["linha"] == 1
+    assert erro["coluna"] > 0
 
 
 def test_analisar_codigo_vazio():
@@ -41,6 +80,7 @@ def test_analisar_codigo_vazio():
         "/api/analisar",
         json={"codigo": ""},
     )
+
     assert response.status_code == 400
 
 
@@ -49,36 +89,49 @@ def test_analisar_codigo_com_espacos():
         "/api/analisar",
         json={"codigo": "   \n  "},
     )
+
     assert response.status_code == 400
 
 
 def test_analisar_sem_campo_codigo():
-    response = client.post("/api/analisar", json={})
+    response = client.post(
+        "/api/analisar",
+        json={},
+    )
+
     assert response.status_code == 422
 
 
-def test_erro_sintatico_retorna_ast_nula():
+def test_erro_sintatico_preserva_ast_parcial():
     response = client.post(
         "/api/analisar",
         json={"codigo": "numero = 10 +"},
     )
 
     assert response.status_code == 200
+
     data = response.json()
 
     assert data["lexico"]["sucesso"] is True
     assert data["sintatico"]["sucesso"] is False
     assert data["sintatico"]["ast"] is None
-    assert len(data["sintatico"]["erros"]) > 0
+
+    assert data["semantico"]["sucesso"] is False
+    assert data["semantico"]["ignorada"] is True
+    assert data["semantico"]["erros"] == []
+
+    assert data["ir"]["sucesso"] is False
+    assert data["ir"]["ignorada"] is True
 
 
-def test_erro_lexico_impede_parser():
+def test_erro_lexico_preserva_ast_parcial():
     response = client.post(
         "/api/analisar",
         json={"codigo": "numero = @ 10"},
     )
 
     assert response.status_code == 200
+
     data = response.json()
 
     assert data["lexico"]["sucesso"] is False
@@ -86,10 +139,20 @@ def test_erro_lexico_impede_parser():
     assert data["sintatico"]["ast"] is None
     assert data["sintatico"]["ignorada"] is True
 
+    assert data["semantico"]["sucesso"] is False
+    assert data["semantico"]["ignorada"] is True
+    assert data["semantico"]["erros"] == []
+
+    assert data["ir"]["sucesso"] is False
+    assert data["ir"]["ignorada"] is True
+
 
 def test_limite_de_tamanho_da_entrada():
+    codigo = "a" * 20001
+
     response = client.post(
         "/api/analisar",
-        json={"codigo": "x" * 20001},
+        json={"codigo": codigo},
     )
+
     assert response.status_code == 422

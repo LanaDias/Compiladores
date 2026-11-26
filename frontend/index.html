@@ -1,9 +1,9 @@
-
 <!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CompilaLab: laboratório educacional para aprender e experimentar compiladores.">
   <title>CompilaLab — Laboratório de Compiladores</title>
 
   <style>
@@ -11,11 +11,10 @@
       font-family: system-ui, sans-serif;
       color: #e8edf7;
       background: #0b1020;
+      color-scheme: dark;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -23,34 +22,35 @@
     }
 
     header {
-      padding: 22px 6%;
+      padding: 20px 4%;
       border-bottom: 1px solid #263149;
       background: #10172a;
     }
 
+    .header-inner, main {
+      width: min(1500px, 96%);
+      margin-inline: auto;
+    }
+
     .brand {
-      font-size: 1.3rem;
+      font-size: 1.35rem;
       font-weight: 800;
     }
 
-    .brand span {
-      color: #7c9cff;
-    }
+    .brand span { color: #7c9cff; }
 
     .subtitle {
       color: #a6b2c8;
       font-size: .9rem;
-      margin-top: 5px;
+      margin-top: 4px;
     }
 
     main {
-      width: min(1100px, 92%);
-      margin: 35px auto;
+      margin-top: 30px;
+      margin-bottom: 45px;
     }
 
-    .intro {
-      margin-bottom: 25px;
-    }
+    .intro { margin-bottom: 22px; }
 
     .eyebrow {
       color: #8ca8ff;
@@ -65,21 +65,50 @@
       font-size: clamp(1.8rem, 4vw, 2.6rem);
     }
 
-    p {
-      line-height: 1.6;
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1.35rem;
     }
 
-    .muted {
-      color: #a6b2c8;
+    h3 {
+      margin: 0 0 9px;
+      font-size: 1.03rem;
     }
 
-    .workspace {
-      display: grid;
-      grid-template-columns: minmax(0, 1.5fr) minmax(250px, .8fr);
-      gap: 20px;
-      align-items: start;
+    p { line-height: 1.6; }
+
+    .muted { color: #a6b2c8; }
+
+    /* Navegação */
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      padding: 8px;
+      margin: 22px 0;
+      border: 1px solid #293650;
+      border-radius: 13px;
+      background: #10172a;
     }
 
+    .tab-button {
+      background: transparent;
+      color: #b9c6dc;
+      border: 1px solid transparent;
+      padding: 11px 17px;
+    }
+
+    .tab-button:hover { background: #1a2741; }
+
+    .tab-button[aria-selected="true"] {
+      color: #fff;
+      background: #263b68;
+      border-color: #5578ed;
+    }
+
+    .tab-panel[hidden] { display: none; }
+
+    /* Painéis */
     .panel {
       border: 1px solid #293650;
       border-radius: 16px;
@@ -105,10 +134,82 @@
       font-size: .75rem;
     }
 
+    /* Aba Aprender */
+    .learning-intro {
+      max-width: 850px;
+      color: #bdc9dc;
+      margin-top: 0;
+    }
+
+    .learning-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 22px;
+    }
+
+    .learning-card {
+      border: 1px solid #34415c;
+      border-radius: 13px;
+      background: #10192c;
+      padding: 17px;
+      min-width: 0;
+    }
+
+    .step-number {
+      display: inline-grid;
+      place-items: center;
+      width: 31px;
+      height: 31px;
+      border-radius: 9px;
+      background: #263b68;
+      color: #c9d6ff;
+      font-weight: 800;
+      margin-bottom: 11px;
+    }
+
+    .learning-card p {
+      color: #aebbd0;
+      font-size: .91rem;
+      margin-bottom: 0;
+    }
+
+    .learning-card code {
+      color: #d7e1ff;
+      background: #202e50;
+      padding: 2px 5px;
+      border-radius: 5px;
+    }
+
+    .learning-card.planned {
+      border-style: dashed;
+      opacity: .78;
+    }
+
+    .learning-status {
+      display: inline-block;
+      margin-top: 12px;
+      color: #9ce8c0;
+      font-size: .76rem;
+      font-weight: 700;
+    }
+
+    .learning-card.planned .learning-status {
+      color: #f0d28d;
+    }
+
+    /* Laboratório */
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(270px, .8fr);
+      gap: 20px;
+      align-items: start;
+    }
+
     textarea {
       display: block;
       width: 100%;
-      min-height: 280px;
+      min-height: 330px;
       resize: vertical;
       border: 1px solid #34415c;
       border-radius: 10px;
@@ -119,9 +220,7 @@
       outline: none;
     }
 
-    textarea:focus {
-      border-color: #7898ff;
-    }
+    textarea:focus { border-color: #7898ff; }
 
     button, select {
       font: inherit;
@@ -137,9 +236,7 @@
       font-weight: 700;
     }
 
-    button:hover {
-      background: #6b8aff;
-    }
+    button:hover { background: #6b8aff; }
 
     button:disabled {
       opacity: .5;
@@ -154,6 +251,8 @@
       border: 1px solid #34415c;
     }
 
+    label { display: block; }
+
     .actions {
       display: flex;
       flex-wrap: wrap;
@@ -166,9 +265,10 @@
       color: #e8edf7;
     }
 
-    .secondary:hover {
-      background: #344565;
-    }
+    .secondary:hover { background: #344565; }
+
+    /* Resultados */
+    .results-area { margin-top: 20px; }
 
     .result-panel {
       margin-top: 18px;
@@ -187,21 +287,11 @@
       font-size: 1rem;
     }
 
-    .result-panel p {
-      margin: 8px 0;
-    }
+    .result-panel p { margin: 8px 0; }
 
-    .status {
-      font-weight: 750;
-    }
-
-    .success-message {
-      color: #86efac;
-    }
-
-    .error-message {
-      color: #fca5a5;
-    }
+    .status { font-weight: 750; }
+    .success-message { color: #86efac; }
+    .error-message { color: #fca5a5; }
 
     .error-item {
       margin: 8px 0;
@@ -237,9 +327,7 @@
       color: #e8edf7;
     }
 
-    td {
-      color: #dce7ff;
-    }
+    td { color: #dce7ff; }
 
     pre {
       white-space: pre-wrap;
@@ -254,57 +342,98 @@
       overflow-x: auto;
     }
 
-    .notice {
-      border-left: 3px solid #e5b65c;
-      padding: 10px 12px;
-      background: #282316;
-      color: #e9d5a6;
-      border-radius: 5px;
+    .ir-code {
+      min-height: 100px;
+      font-family: Consolas, "Courier New", monospace;
+      color: #9ce8c0;
+    }
+
+    .example-info {
+      margin: 12px 0 0;
+      padding: 12px;
+      border: 1px solid #34415c;
+      border-radius: 9px;
+      background: #0b1020;
+      color: #dce7ff;
       font-size: .85rem;
       line-height: 1.5;
     }
 
-    .notice p {
-      margin-bottom: 0;
+    .example-info strong { color: #8ca8ff; }
+
+    .example-info p {
+      margin: 6px 0 0;
+      color: #a6b2c8;
     }
 
-    .section-title {
-      margin-top: 25px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #293650;
+    .tokens-details {
+      margin: 12px 0;
+      border: 1px solid #34415c;
+      border-radius: 9px;
+      background: #090e1b;
+      padding: 10px;
     }
 
-    footer {
-      color: #8290a8;
-      text-align: center;
-      padding: 30px 15px;
-      font-size: .85rem;
+    .tokens-details summary,
+    .ast-json summary {
+      cursor: pointer;
+      color: #b7c8ff;
+      font-weight: 700;
+      padding: 5px;
     }
 
-    /* VISUALIZAÇÃO DA AST */
-
+    /* Árvore sintática */
     .ast-tree {
+      width: 100%;
+      max-width: 100%;
+      min-height: 300px;
       overflow: auto;
-      padding: 20px 10px;
+      padding: 20px;
       background: #090e1b;
       border: 1px solid #293650;
       border-radius: 10px;
       margin-top: 12px;
     }
 
+    .ast-tree.ast-expanded {
+      position: fixed;
+      inset: 2vh 2vw;
+      z-index: 1000;
+      width: 96vw;
+      height: 96vh;
+      max-width: none;
+      max-height: 96vh;
+      margin: 0;
+      background: #090e1b;
+      box-shadow: 0 0 0 100vmax #000b;
+    }
+
+    .ast-toolbar {
+      position: sticky;
+      top: -20px;
+      z-index: 2;
+      display: flex;
+      justify-content: flex-end;
+      padding: 5px 0 12px;
+      background: #090e1b;
+    }
+
     .ast-tree ul {
       display: flex;
       justify-content: center;
-      padding-top: 22px;
+      align-items: flex-start;
       position: relative;
+      width: max-content;
+      min-width: 100%;
+      padding: 22px 0 0;
       margin: 0;
-      padding-left: 0;
     }
 
     .ast-tree li {
       list-style: none;
       text-align: center;
       position: relative;
+      flex: 0 0 auto;
       padding: 22px 8px 0;
     }
 
@@ -330,9 +459,7 @@
       display: none;
     }
 
-    .ast-tree li:only-child {
-      padding-top: 0;
-    }
+    .ast-tree li:only-child { padding-top: 0; }
 
     .ast-tree li:first-child::before,
     .ast-tree li:last-child::after {
@@ -360,88 +487,519 @@
     .ast-node {
       display: inline-flex;
       flex-direction: column;
-      gap: 4px;
-      padding: 10px 13px;
-      min-width: 110px;
-      max-width: 190px;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 180px;
+      min-width: 180px;
+      max-width: 220px;
+      min-height: 85px;
+      padding: 12px;
       background: #202e50;
       border: 1px solid #7898ff;
-      border-radius: 9px;
+      border-radius: 10px;
       color: #e8edf7;
       font-size: .8rem;
-      overflow-wrap: anywhere;
+      overflow-wrap: break-word;
+      word-break: normal;
+      white-space: normal;
     }
 
     .ast-node strong {
       color: #b7c8ff;
+      font-size: .85rem;
     }
 
     .ast-node small {
       color: #a6b2c8;
-      font-size: .7rem;
+      font-size: .75rem;
+      line-height: 1.4;
+      overflow-wrap: anywhere;
     }
 
-    .ast-json {
-      margin-top: 15px;
+    .ast-json { margin-top: 15px; }
+
+    footer {
+      color: #8290a8;
+      text-align: center;
+      padding: 30px 15px;
+      font-size: .85rem;
     }
 
-    .ast-json summary {
-      cursor: pointer;
-      color: #b7c8ff;
-      padding: 8px 0;
+    @media (max-width: 900px) {
+      .workspace { grid-template-columns: 1fr; }
+      .learning-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
-    @media (max-width: 720px) {
-      .workspace {
-        grid-template-columns: 1fr;
-      }
-
-      main {
-        margin-top: 25px;
-      }
+    @media (max-width: 560px) {
+      main { margin-top: 22px; }
+      .learning-grid { grid-template-columns: 1fr; }
+      .panel { padding: 15px; }
+      .tab-button { flex: 1 1 100%; }
+      .ast-tree { min-height: 250px; padding: 12px; }
     }
+
+    
+/* Seletor de tema */
+.header-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.theme-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.theme-control label {
+  color: inherit;
+  font-size: .9rem;
+  font-weight: 700;
+}
+
+.theme-control select {
+  width: auto;
+  min-width: 110px;
+  margin: 0;
+}
+
+/* TEMA ESCURO */
+:root[data-theme="escuro"] {
+  color-scheme: dark;
+  color: #f1f5f9;
+  background: #090909;
+}
+
+:root[data-theme="escuro"] body {
+  background: #090909;
+  color: #f1f5f9;
+}
+
+:root[data-theme="escuro"] header,
+:root[data-theme="escuro"] .tabs {
+  background: #151515;
+  border-color: #333;
+}
+
+:root[data-theme="escuro"] .panel {
+  background: #1c1c1c;
+  border-color: #383838;
+}
+
+:root[data-theme="escuro"] .learning-card {
+  background: #151515;
+  border-color: #383838;
+}
+
+:root[data-theme="escuro"] .result-panel,
+:root[data-theme="escuro"] .example-info,
+:root[data-theme="escuro"] .tokens-details,
+:root[data-theme="escuro"] .ast-tree,
+:root[data-theme="escuro"] .ast-toolbar {
+  background: #101010;
+  border-color: #383838;
+  color: #f1f5f9;
+}
+
+:root[data-theme="escuro"] textarea,
+:root[data-theme="escuro"] pre {
+  background: #080808;
+  color: #f1f5f9;
+  border-color: #383838;
+}
+
+:root[data-theme="escuro"] select {
+  background: #111;
+  color: #f1f5f9;
+  border-color: #444;
+}
+
+:root[data-theme="escuro"] th {
+  background: #292929;
+  color: #fff;
+}
+
+:root[data-theme="escuro"] td {
+  color: #e5e5e5;
+}
+
+:root[data-theme="escuro"] th,
+:root[data-theme="escuro"] td {
+  border-color: #444;
+}
+
+:root[data-theme="escuro"] .ast-node {
+  background: #292929;
+  border-color: #777;
+  color: #fff;
+}
+
+:root[data-theme="escuro"] .ast-node strong,
+:root[data-theme="escuro"] .ast-tree summary {
+  color: #e5e5e5;
+}
+
+:root[data-theme="escuro"] .tab-button {
+  color: #ddd;
+}
+
+:root[data-theme="escuro"] .tab-button:hover,
+:root[data-theme="escuro"] .tab-button[aria-selected="true"] {
+  background: #333;
+  border-color: #888;
+  color: white;
+}
+
+:root[data-theme="escuro"] .tag,
+:root[data-theme="escuro"] .step-number,
+:root[data-theme="escuro"] .learning-card code {
+  background: #333;
+  color: #f1f5f9;
+}
+
+:root[data-theme="escuro"] .error-item {
+  background: #351c1c;
+  color: #fecaca;
+}
+
+:root[data-theme="escuro"] .muted,
+:root[data-theme="escuro"] .subtitle,
+:root[data-theme="escuro"] .learning-intro,
+:root[data-theme="escuro"] .learning-card p,
+:root[data-theme="escuro"] .example-info p {
+  color: #bdbdbd;
+}
+
+:root[data-theme="escuro"] .eyebrow,
+:root[data-theme="escuro"] .brand span,
+:root[data-theme="escuro"] .example-info strong {
+  color: #d4d4d4;
+}
+
+:root[data-theme="escuro"] .ast-tree li::before,
+:root[data-theme="escuro"] .ast-tree li::after,
+:root[data-theme="escuro"] .ast-tree ul ul::before {
+  border-color: #888;
+}
+
+:root[data-theme="escuro"] .ir-code {
+  color: #a7f3d0;
+}
+
+/* TEMA CLARO */
+:root[data-theme="claro"] {
+  color-scheme: light;
+  color: #172033;
+  background: #f4f6fa;
+}
+
+:root[data-theme="claro"] body {
+  background: #f4f6fa;
+  color: #172033;
+}
+
+:root[data-theme="claro"] header,
+:root[data-theme="claro"] .tabs {
+  background: #fff;
+  border-color: #dce2ec;
+}
+
+:root[data-theme="claro"] .panel {
+  background: #fff;
+  border-color: #dce2ec;
+}
+
+:root[data-theme="claro"] .learning-card {
+  background: #f8fafc;
+  border-color: #dce2ec;
+}
+
+:root[data-theme="claro"] .result-panel,
+:root[data-theme="claro"] .example-info,
+:root[data-theme="claro"] .tokens-details,
+:root[data-theme="claro"] .ast-tree,
+:root[data-theme="claro"] .ast-toolbar {
+  background: #f8fafc;
+  border-color: #dce2ec;
+  color: #172033;
+}
+
+:root[data-theme="claro"] textarea,
+:root[data-theme="claro"] pre {
+  background: #fff;
+  color: #172033;
+  border-color: #cbd5e1;
+}
+
+:root[data-theme="claro"] select {
+  background: #fff;
+  color: #172033;
+  border-color: #cbd5e1;
+}
+
+:root[data-theme="claro"] .tab-button {
+  color: #334155;
+}
+
+:root[data-theme="claro"] .tab-button:hover {
+  background: #eaf0ff;
+}
+
+:root[data-theme="claro"] .tab-button[aria-selected="true"] {
+  background: #dbeafe;
+  border-color: #5578ed;
+  color: #1e3a8a;
+}
+
+:root[data-theme="claro"] .tag,
+:root[data-theme="claro"] .step-number,
+:root[data-theme="claro"] .learning-card code {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+:root[data-theme="claro"] .ast-node {
+  background: #eaf0ff;
+  border-color: #7898ff;
+  color: #172033;
+}
+
+:root[data-theme="claro"] .ast-node strong {
+  color: #1e40af;
+}
+
+:root[data-theme="claro"] .ast-node small {
+  color: #475569;
+}
+
+:root[data-theme="claro"] th {
+  background: #eaf0ff;
+  color: #172033;
+}
+
+:root[data-theme="claro"] td {
+  color: #334155;
+}
+
+:root[data-theme="claro"] th,
+:root[data-theme="claro"] td {
+  border-color: #cbd5e1;
+}
+
+:root[data-theme="claro"] .muted,
+:root[data-theme="claro"] .subtitle,
+:root[data-theme="claro"] .learning-intro,
+:root[data-theme="claro"] .learning-card p,
+:root[data-theme="claro"] .example-info p {
+  color: #64748b;
+}
+
+:root[data-theme="claro"] .eyebrow,
+:root[data-theme="claro"] .brand span,
+:root[data-theme="claro"] .example-info strong {
+  color: #3159bd;
+}
+
+:root[data-theme="claro"] .ast-tree li::before,
+:root[data-theme="claro"] .ast-tree li::after,
+:root[data-theme="claro"] .ast-tree ul ul::before {
+  border-color: #7898ff;
+}
+
+:root[data-theme="claro"] .ir-code {
+  color: #15803d;
+}
+
+:root[data-theme="claro"] .error-item {
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+:root[data-theme="claro"] footer {
+  color: #64748b;
+}
+
   </style>
 </head>
 
 <body>
   <header>
-    <div class="brand">Compila<span>Lab</span></div>
-    <div class="subtitle">
-      Laboratório educacional de construção de compiladores
+    <div class="header-inner">
+      <div class="brand">Compila<span>Lab</span></div>
+      <div class="subtitle">Laboratório educacional de construção de compiladores</div>
+      <div class="theme-control">
+  <label for="theme-selector">Tema:</label>
+  <select id="theme-selector" aria-label="Selecionar tema">
+    <option value="azul">Azul</option>
+    <option value="escuro">Escuro</option>
+    <option value="claro">Claro</option>
+  </select>
+</div>
     </div>
   </header>
 
   <main>
     <section class="intro">
       <div class="eyebrow">Ambiente de aprendizagem</div>
-      <h1>Explore seu código</h1>
+      <h1>CompilaLab</h1>
       <p class="muted">
-        Escreva ou selecione um exemplo e envie o código para a API do CompilaLab.
+        Conheça as etapas de um compilador e teste seus códigos no laboratório.
       </p>
     </section>
 
-    <div class="workspace">
-      <section class="panel">
+    <nav class="tabs" aria-label="Navegação principal" role="tablist">
+      <button class="tab-button" id="tab-aprender"
+        role="tab" aria-selected="true"
+        aria-controls="painel-aprender" type="button">
+        Aprender
+      </button>
+
+      <button class="tab-button" id="tab-laboratorio"
+        role="tab" aria-selected="false"
+        aria-controls="painel-laboratorio"
+        type="button" tabindex="-1">
+        Laboratório
+      </button>
+    </nav>
+
+    <!-- ABA APRENDER -->
+    <section id="painel-aprender" class="tab-panel"
+      role="tabpanel" aria-labelledby="tab-aprender">
+
+      <div class="panel">
+        <div class="eyebrow">Conceitos fundamentais</div>
+        <h2>Etapas de um compilador</h2>
+
+        <p class="learning-intro">
+          Um compilador processa o código-fonte em diferentes etapas.
+          Cada uma analisa uma característica do programa e prepara
+          informações para as próximas fases.
+        </p>
+
+        <div class="learning-grid">
+          <article class="learning-card">
+            <span class="step-number">1</span>
+            <h3>Análise léxica</h3>
+            <p>
+              Divide o código em tokens, identificando palavras-chave,
+              identificadores, números e operadores.
+            </p>
+            <span class="learning-status">Implementada</span>
+          </article>
+
+          <article class="learning-card">
+            <span class="step-number">2</span>
+            <h3>Análise sintática</h3>
+            <p>
+              Verifica se a sequência de tokens respeita as regras
+              gramaticais da linguagem.
+            </p>
+            <span class="learning-status">Implementada</span>
+          </article>
+
+          <article class="learning-card">
+            <span class="step-number">3</span>
+            <h3>Árvore sintática (AST)</h3>
+            <p>
+              Organiza os elementos do programa em uma estrutura
+              hierárquica de nós e relações.
+            </p>
+            <span class="learning-status">Implementada</span>
+          </article>
+
+          <article class="learning-card">
+            <span class="step-number">4</span>
+            <h3>Análise semântica</h3>
+            <p>
+              Verifica o significado do programa, incluindo declarações
+              de variáveis e compatibilidade entre tipos.
+            </p>
+            <span class="learning-status">Implementada</span>
+          </article>
+
+          <article class="learning-card">
+            <span class="step-number">5</span>
+            <h3>Representação intermediária (IR)</h3>
+            <p>
+              Converte a AST em instruções de três endereços,
+              utilizando temporários e rótulos para representar
+              operações e estruturas de controle.
+            </p>
+            <span class="learning-status">Implementada</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA LABORATÓRIO -->
+    <section id="painel-laboratorio" class="tab-panel"
+      role="tabpanel" aria-labelledby="tab-laboratorio" hidden>
+
+      <div class="workspace">
+        <section class="panel">
+          <div class="panel-title">
+            <span>Editor de código</span>
+            <span class="tag">CompilaLab</span>
+          </div>
+
+          <textarea id="code" aria-label="Editor de código"
+            spellcheck="false">int valor = 10;
+int outroValor = 20;
+int soma = valor + outroValor;
+print(soma);</textarea>
+
+          <div class="actions">
+            <button id="analyze" type="button">Analisar código</button>
+            <button id="clear" class="secondary" type="button">Limpar</button>
+            <button id="copy-code" class="secondary" type="button">Copiar código</button>
+          </div>
+
+          <div id="result" class="result-panel"
+            role="status" aria-live="polite">
+            Pronto para analisar seu código.
+          </div>
+        </section>
+
+        <aside class="panel">
+          <div class="panel-title">Exemplos prontos</div>
+
+          <label for="examples" class="muted">
+            Selecione um exemplo:
+          </label>
+
+          <select id="examples">
+            <option value="basic">Declaração e operações</option>
+            <option value="variables">Variáveis e tipos</option>
+            <option value="expression">Expressões matemáticas</option>
+            <option value="invalid">Erro léxico</option>
+            <option value="syntaxError">Erro sintático</option>
+            <option value="semanticError">Erro semântico</option>
+            <option value="empty">Código vazio</option>
+          </select>
+
+          <div class="example-info">
+            <strong id="example-title">Declaração e operações</strong>
+            <p id="example-description">
+              Declara variáveis, realiza uma operação e exibe o resultado.
+            </p>
+          </div>
+        </aside>
+      </div>
+
+      <!-- RESULTADOS -->
+      <section class="panel results-area">
         <div class="panel-title">
-          <span>Editor de código</span>
-          <span class="tag">Etapa 4</span>
+          <span>Resultados da análise</span>
+          <span class="tag">Léxica · Sintática · Semântica · AST · IR</span>
         </div>
 
-        <textarea
-          id="code"
-          aria-label="Editor de código"
-          spellcheck="false"
-        >valor = 10 + 20
-print(valor)</textarea>
-
-        <div class="actions">
-          <button id="analyze" type="button">Analisar código</button>
-          <button id="clear" class="secondary" type="button">Limpar</button>
-        </div>
-
-        <div id="result" class="result-panel" role="status" aria-live="polite">
-          Pronto para analisar seu código.
-        </div>
+        <p class="muted">
+          Os resultados de cada etapa aparecem abaixo após a análise.
+        </p>
 
         <section id="resultado-lexico" class="result-panel">
           <h3>Análise Léxica</h3>
@@ -453,99 +1011,222 @@ print(valor)</textarea>
           <p class="muted">Aguardando análise.</p>
         </section>
 
+        <section id="resultado-semantico" class="result-panel">
+          <h3>Análise Semântica</h3>
+          <p class="muted">Aguardando análise.</p>
+        </section>
+
         <section id="resultado-ast" class="result-panel">
           <h3>Árvore Sintática Abstrata (AST)</h3>
           <p class="muted">Aguardando análise.</p>
         </section>
 
+        <section id="resultado-ir" class="result-panel">
+          <h3>Representação Intermediária (IR)</h3>
+          <p class="muted">Aguardando análise.</p>
+        </section>
+
         <div class="actions">
-          <button
-            id="exportar-ast"
-            class="secondary"
-            type="button"
-            disabled
-          >
+          <button id="exportar-ast" class="secondary"
+            type="button" disabled>
             Exportar AST em JSON
+          </button>
+
+          <button id="exportar-ir" class="secondary"
+            type="button" disabled>
+            Exportar IR em TXT
           </button>
         </div>
       </section>
-
-      <aside class="panel">
-        <div class="panel-title">Exemplos prontos</div>
-
-        <label for="examples" class="muted">
-          Selecione um exemplo:
-        </label>
-
-        <select id="examples">
-          <option value="basic">Soma de números</option>
-          <option value="variables">Variáveis</option>
-          <option value="expression">Expressão matemática</option>
-          <option value="condition">Condição</option>
-          <option value="invalid">Caractere inválido</option>
-          <option value="empty">Código vazio</option>
-        </select>
-
-        <div class="notice">
-          <strong>Etapa atual: análise léxica e sintática</strong>
-          <p>
-            O sistema identifica tokens, verifica a estrutura do código,
-            apresenta erros sintáticos e constrói a Árvore Sintática
-            Abstrata (AST).
-          </p>
-        </div>
-
-        <h3>Etapas do projeto</h3>
-        <p class="muted">1. Análise léxica</p>
-        <p class="muted">2. Análise sintática</p>
-        <p class="muted">3. Análise semântica</p>
-        <p class="muted">4. Representação intermediária</p>
-      </aside>
-    </div>
+    </section>
   </main>
 
-  <footer>
-    CompilaLab · Projeto acadêmico de compiladores
-  </footer>
+  <footer>CompilaLab · Projeto acadêmico de compiladores</footer>
 
   <script>
     const code = document.querySelector("#code");
+
+// Controle dos temas
+const seletorTema = document.querySelector("#theme-selector");
+
+function aplicarTema(tema) {
+  const temasPermitidos = ["azul", "escuro", "claro"];
+
+  if (!temasPermitidos.includes(tema)) {
+    tema = "azul";
+  }
+
+  document.documentElement.dataset.theme = tema;
+  seletorTema.value = tema;
+
+  try {
+    localStorage.setItem("compilalab-tema", tema);
+  } catch (erro) {
+    console.warn("Não foi possível salvar o tema.", erro);
+  }
+}
+
+// Recupera o tema salvo
+let temaSalvo = "azul";
+
+try {
+  temaSalvo = localStorage.getItem("compilalab-tema") || "azul";
+} catch (erro) {
+  console.warn("Não foi possível recuperar o tema.", erro);
+}
+
+aplicarTema(temaSalvo);
+
+// Altera o tema quando o usuário selecionar
+seletorTema.addEventListener("change", () => {
+  aplicarTema(seletorTema.value);
+});
+
     const result = document.querySelector("#result");
     const analyze = document.querySelector("#analyze");
     const clear = document.querySelector("#clear");
     const examples = document.querySelector("#examples");
+    const exampleTitle = document.querySelector("#example-title");
+    const exampleDescription = document.querySelector("#example-description");
 
     const areaLexico = document.querySelector("#resultado-lexico");
     const areaSintatico = document.querySelector("#resultado-sintatico");
+    const areaSemantico = document.querySelector("#resultado-semantico");
     const areaAst = document.querySelector("#resultado-ast");
+    const areaIr = document.querySelector("#resultado-ir");
+
     const botaoExportar = document.querySelector("#exportar-ast");
+    const botaoExportarIr = document.querySelector("#exportar-ir");
+    const botaoCopiar = document.querySelector("#copy-code");
 
     let astAtual = null;
+    let irAtual = null;
 
+    // Navegação entre as abas
+    const tabs = [
+      {
+        button: document.querySelector("#tab-aprender"),
+        panel: document.querySelector("#painel-aprender")
+      },
+      {
+        button: document.querySelector("#tab-laboratorio"),
+        panel: document.querySelector("#painel-laboratorio")
+      }
+    ];
+
+    function ativarAba(indice, moverFoco = false) {
+      tabs.forEach((tab, i) => {
+        const ativa = i === indice;
+
+        tab.button.setAttribute("aria-selected", String(ativa));
+        tab.button.tabIndex = ativa ? 0 : -1;
+        tab.panel.hidden = !ativa;
+      });
+
+      if (moverFoco) {
+        tabs[indice].button.focus();
+      }
+    }
+
+    tabs.forEach((tab, indice) => {
+      tab.button.addEventListener("click", () => ativarAba(indice));
+
+      tab.button.addEventListener("keydown", event => {
+        let proxima = indice;
+
+        if (event.key === "ArrowRight") {
+          proxima = (indice + 1) % tabs.length;
+        } else if (event.key === "ArrowLeft") {
+          proxima = (indice - 1 + tabs.length) % tabs.length;
+        } else if (event.key === "Home") {
+          proxima = 0;
+        } else if (event.key === "End") {
+          proxima = tabs.length - 1;
+        } else {
+          return;
+        }
+
+        event.preventDefault();
+        ativarAba(proxima, true);
+      });
+    });
+
+    // Exemplos de código
     const samples = {
-      basic: "valor = 10 + 20\nprint(valor)",
-      variables: "numero = 42\naltura = 2.5\nprint(numero)",
-      expression: "resultado = (8 + 2) * 3 - 4\nprint(resultado)",
-      condition: "if numero > 5:\n    print(numero)",
-      invalid: "numero = 10 @ 20",
+      basic: `int valor1 = 10;
+int valor2 = 20;
+int soma = valor1 + valor2;
+int resultado = soma * 2;
+print(resultado);`,
+
+      variables: `int numero = 42;
+float altura = 2.5;
+float peso = 65.8;
+int idade = 25;
+
+print(numero);
+print(altura);
+print(peso);
+print(idade);`,
+
+      expression: `int a = 10;
+int b = 5;
+int c = 2;
+
+int resultado1 = a + b * c;
+int resultado2 = (a + b) * c;
+int resultado3 = a - b;
+int resultado4 = (a * b) + (c - 1);
+
+print(resultado1);
+print(resultado2);
+print(resultado3);
+print(resultado4);`,
+
+      invalid: `int numero = 10;
+int valor = 20;
+
+@ operacao_invalida
+print(numero);`,
+
+      syntaxError: `int numero = ;
+print(numero);`,
+
+      semanticError: `print(variavelNaoDeclarada);`,
+
       empty: ""
     };
 
-    examples.addEventListener("change", () => {
-      code.value = samples[examples.value];
-      limparResultados();
-
-      result.textContent =
-        "Exemplo carregado. Clique em Analisar código para enviá-lo à API.";
-    });
-
-    clear.addEventListener("click", () => {
-      code.value = "";
-      examples.value = "empty";
-      limparResultados();
-      result.textContent = "Editor limpo.";
-      code.focus();
-    });
+    const exampleDescriptions = {
+      basic: {
+        title: "Declaração e operações",
+        description: "Declara variáveis, realiza operações matemáticas e exibe o resultado."
+      },
+      variables: {
+        title: "Variáveis e tipos",
+        description: "Apresenta declarações de variáveis inteiras e decimais."
+      },
+      expression: {
+        title: "Expressões matemáticas",
+        description: "Demonstra operadores e parênteses em diferentes expressões."
+      },
+      invalid: {
+        title: "Erro léxico",
+        description: "Contém um caractere inválido para testar a análise léxica."
+      },
+      syntaxError: {
+        title: "Erro sintático",
+        description: "Contém uma declaração incompleta para testar a análise sintática."
+      },
+      semanticError: {
+        title: "Erro semântico",
+        description: "Utiliza uma variável que não foi declarada."
+      },
+      empty: {
+        title: "Código vazio",
+        description: "Permite observar a resposta do sistema quando nenhum código é informado."
+      }
+    };
 
     function criarElemento(tag, texto, classe) {
       const elemento = document.createElement(tag);
@@ -561,9 +1242,20 @@ print(valor)</textarea>
       return elemento;
     }
 
+    function atualizarDescricaoExemplo() {
+      const exemplo = exampleDescriptions[examples.value];
+
+      if (!exemplo) return;
+
+      exampleTitle.textContent = exemplo.title;
+      exampleDescription.textContent = exemplo.description;
+    }
+
     function limparResultados() {
       astAtual = null;
+      irAtual = null;
       botaoExportar.disabled = true;
+      botaoExportarIr.disabled = true;
 
       areaLexico.replaceChildren(
         criarElemento("h3", "Análise Léxica"),
@@ -575,13 +1267,63 @@ print(valor)</textarea>
         criarElemento("p", "Aguardando análise.", "muted")
       );
 
+      areaSemantico.replaceChildren(
+        criarElemento("h3", "Análise Semântica"),
+        criarElemento("p", "Aguardando análise.", "muted")
+      );
+
       areaAst.replaceChildren(
         criarElemento("h3", "Árvore Sintática Abstrata (AST)"),
         criarElemento("p", "Aguardando análise.", "muted")
       );
+
+      areaIr.replaceChildren(
+        criarElemento("h3", "Representação Intermediária (IR)"),
+        criarElemento("p", "Aguardando análise.", "muted")
+      );
     }
 
+    examples.addEventListener("change", () => {
+      code.value = samples[examples.value];
+      atualizarDescricaoExemplo();
+      limparResultados();
+
+      result.textContent =
+        "Exemplo carregado. Clique em Analisar código para executá-lo.";
+    });
+
+    atualizarDescricaoExemplo();
+
+    clear.addEventListener("click", () => {
+      code.value = "";
+      examples.value = "empty";
+
+      atualizarDescricaoExemplo();
+      limparResultados();
+
+      result.textContent = "Editor limpo.";
+      code.focus();
+    });
+
+    botaoCopiar.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(code.value);
+        result.textContent = "Código copiado para a área de transferência.";
+      } catch {
+        result.textContent =
+          "Não foi possível copiar automaticamente. Selecione e copie o código manualmente.";
+      }
+    });
+
+    // Exibe a tabela de tokens
     function mostrarTabelaTokens(tokens) {
+      const detalhes = document.createElement("details");
+      detalhes.className = "tokens-details";
+
+      detalhes.appendChild(
+        criarElemento("summary", `Mostrar tabela de tokens (${tokens.length})`)
+      );
+
       const wrapper = document.createElement("div");
       wrapper.className = "table-wrapper";
 
@@ -589,7 +1331,7 @@ print(valor)</textarea>
       const thead = document.createElement("thead");
       const linhaCabecalho = document.createElement("tr");
 
-      ["Tipo", "Lexema", "Linha", "Coluna"].forEach((titulo) => {
+      ["Tipo", "Lexema", "Linha", "Coluna"].forEach(titulo => {
         linhaCabecalho.appendChild(criarElemento("th", titulo));
       });
 
@@ -598,15 +1340,10 @@ print(valor)</textarea>
 
       const tbody = document.createElement("tbody");
 
-      tokens.forEach((token) => {
+      tokens.forEach(token => {
         const linha = document.createElement("tr");
 
-        [
-          token.tipo,
-          token.lexema,
-          token.linha,
-          token.coluna
-        ].forEach((valor) => {
+        [token.tipo, token.lexema, token.linha, token.coluna].forEach(valor => {
           linha.appendChild(criarElemento("td", valor ?? ""));
         });
 
@@ -615,48 +1352,275 @@ print(valor)</textarea>
 
       tabela.appendChild(tbody);
       wrapper.appendChild(tabela);
+      detalhes.appendChild(wrapper);
 
-      return wrapper;
+      return detalhes;
     }
 
-    function mostrarErros(area, erros, mensagemVazia) {
-      if (!Array.isArray(erros) || erros.length === 0) {
-        area.appendChild(
-          criarElemento("p", mensagemVazia, "success-message")
+    // Exibe mensagens de erro ou sucesso
+  function mostrarErros(area, erros) {
+  if (!Array.isArray(erros) || erros.length === 0) {
+    return;
+  }
+
+  erros.forEach(erro => {
+    const mensagem = typeof erro === "string"
+      ? erro
+      : `${erro.tipo || "ERRO"}: ${erro.mensagem || "Erro não especificado."} (linha ${erro.linha ?? "?"}, coluna ${erro.coluna ?? "?"})`;
+
+    area.appendChild(
+      criarElemento("div", mensagem, "error-item")
+    );
+  });
+}
+      
+
+    // Exibe o resultado da análise semântica
+    
+function mostrarResultadoSemantico(semantico) {
+  areaSemantico.replaceChildren();
+
+  areaSemantico.appendChild(
+    criarElemento("h3", "Análise Semântica")
+  );
+
+  if (!semantico || semantico.ignorada === true) {
+    areaSemantico.appendChild(
+      criarElemento(
+        "p",
+        semantico?.mensagem ||
+          "A análise semântica não foi realizada.",
+        "muted"
+      )
+    );
+
+    return;
+  }
+
+  const erros = Array.isArray(semantico.erros)
+    ? semantico.erros
+    : [];
+
+  const simbolos = Array.isArray(semantico.tabelaSimbolos)
+    ? semantico.tabelaSimbolos
+    : [];
+
+  // Resultado geral
+  areaSemantico.appendChild(
+    criarElemento(
+      "p",
+      semantico.sucesso
+        ? "Código semanticamente válido."
+        : "Foram encontrados erros semânticos.",
+      semantico.sucesso
+        ? "success-message"
+        : "error-message"
+    )
+  );
+
+  // Diagnósticos semânticos
+  if (erros.length > 0) {
+    areaSemantico.appendChild(
+      criarElemento("h3", `Erros semânticos (${erros.length})`)
+    );
+
+    erros.forEach(erro => {
+      const item = document.createElement("div");
+      item.className = "error-item";
+
+      item.appendChild(
+        criarElemento(
+          "strong",
+          erro.regra || "REGRA SEMÂNTICA"
+        )
+      );
+
+      item.appendChild(
+        criarElemento(
+          "p",
+          erro.mensagem || "Erro semântico não especificado."
+        )
+      );
+
+      item.appendChild(
+        criarElemento(
+          "small",
+          `Linha: ${erro.linha ?? "?"} | Coluna: ${erro.coluna ?? "?"}`
+        )
+      );
+
+      if (erro.sugestao) {
+        item.appendChild(
+          criarElemento(
+            "p",
+            `Sugestão: ${erro.sugestao}`
+          )
         );
+      }
+
+      areaSemantico.appendChild(item);
+    });
+  }
+
+  // Tabela de símbolos
+  areaSemantico.appendChild(
+    criarElemento("h3", `Tabela de símbolos (${simbolos.length})`)
+  );
+
+  if (simbolos.length === 0) {
+    areaSemantico.appendChild(
+      criarElemento(
+        "p",
+        "Nenhuma variável foi declarada.",
+        "muted"
+      )
+    );
+
+    return;
+  }
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "table-wrapper";
+
+  const tabela = document.createElement("table");
+  const thead = document.createElement("thead");
+  const cabecalho = document.createElement("tr");
+
+  [
+    "Nome",
+    "Tipo",
+    "Escopo",
+    "Linha",
+    "Coluna",
+    "Inicializada",
+    "Utilizada"
+  ].forEach(titulo => {
+    cabecalho.appendChild(criarElemento("th", titulo));
+  });
+
+  thead.appendChild(cabecalho);
+  tabela.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+
+  simbolos.forEach(simbolo => {
+    const linha = document.createElement("tr");
+
+    [
+      simbolo.nome,
+      simbolo.tipo,
+      simbolo.escopo,
+      simbolo.linha,
+      simbolo.coluna,
+      simbolo.inicializado ? "Sim" : "Não",
+      simbolo.usado ? "Sim" : "Não"
+    ].forEach(valor => {
+      linha.appendChild(
+        criarElemento("td", valor ?? "")
+      );
+    });
+
+    tbody.appendChild(linha);
+  });
+
+  tabela.appendChild(tbody);
+  wrapper.appendChild(tabela);
+  areaSemantico.appendChild(wrapper);
+}
+
+
+
+    // Exibe o resultado da representação intermediária
+    function mostrarResultadoIR(ir) {
+      areaIr.replaceChildren();
+
+      areaIr.appendChild(
+        criarElemento("h3", "Representação Intermediária (IR)")
+      );
+
+      if (!ir || ir.ignorada === true || ir.sucesso !== true) {
+        irAtual = null;
+        botaoExportarIr.disabled = true;
+
+        areaIr.appendChild(
+          criarElemento(
+            "p",
+            ir?.mensagem ||
+              "A representação intermediária não foi gerada.",
+            "muted"
+          )
+        );
+
         return;
       }
 
-      erros.forEach((erro) => {
-        let mensagem;
+      const instrucoes = Array.isArray(ir.instrucoes)
+        ? ir.instrucoes
+        : [];
 
-        if (typeof erro === "string") {
-          mensagem = erro;
-        } else {
-          mensagem =
-            `${erro.tipo || "ERRO"}: ` +
-            `${erro.mensagem || "Erro não especificado."} ` +
-            `(linha ${erro.linha ?? "?"}, coluna ${erro.coluna ?? "?"})`;
-        }
+      const codigoIr = typeof ir.codigo === "string"
+        ? ir.codigo
+        : instrucoes.join("\n");
 
-        area.appendChild(
-          criarElemento("div", mensagem, "error-item")
+      irAtual = codigoIr;
+      botaoExportarIr.disabled = false;
+
+      areaIr.appendChild(
+        criarElemento(
+          "p",
+          "Representação intermediária gerada com sucesso.",
+          "success-message"
+        )
+      );
+
+      areaIr.appendChild(
+        criarElemento(
+          "p",
+          `Total de instruções: ${instrucoes.length}`
+        )
+      );
+
+      const pre = criarElemento("pre", codigoIr, "ir-code");
+      areaIr.appendChild(pre);
+
+      const detalhes = document.createElement("details");
+      detalhes.className = "tokens-details";
+
+      detalhes.appendChild(
+        criarElemento("summary", "Ver instruções individualmente")
+      );
+
+      const lista = document.createElement("ol");
+
+      instrucoes.forEach(instrucao => {
+        lista.appendChild(
+          criarElemento("li", instrucao)
         );
       });
+
+      detalhes.appendChild(lista);
+      areaIr.appendChild(detalhes);
     }
 
+    // Exibe o resumo geral e os resultados
     function mostrarResultado(data) {
       result.replaceChildren();
 
-      const sucesso = data.sucesso === true;
+      const sucesso =
+        data.lexico?.sucesso === true &&
+        data.sintatico?.sucesso === true &&
+        data.semantico?.sucesso === true &&
+        data.ir?.sucesso === true;
 
       result.appendChild(
         criarElemento(
           "p",
           sucesso
-            ? "Requisição processada sem erros gerais."
-            : "A análise encontrou problemas.",
-          sucesso ? "status success-message" : "status error-message"
+            ? "Todas as etapas do compilador foram concluídas sem erros."
+            : "Uma ou mais etapas do compilador encontraram problemas.",
+          sucesso
+            ? "status success-message"
+            : "status error-message"
         )
       );
 
@@ -670,24 +1634,25 @@ print(valor)</textarea>
       result.appendChild(
         criarElemento(
           "p",
-          `Tokens identificados: ${
-            Array.isArray(data.tokens) ? data.tokens.length : 0
-          }`
+          `Tokens identificados: ${Array.isArray(data.tokens) ? data.tokens.length : 0}`
         )
       );
 
       mostrarAnaliseCompleta(data);
     }
 
+    // Exibe os resultados de todas as etapas
     function mostrarAnaliseCompleta(data) {
       areaLexico.replaceChildren();
       areaSintatico.replaceChildren();
+      areaSemantico.replaceChildren();
       areaAst.replaceChildren();
+      areaIr.replaceChildren();
 
       const tokens = Array.isArray(data.tokens) ? data.tokens : [];
       const errosLexicos = Array.isArray(data.erros) ? data.erros : [];
 
-      // ANÁLISE LÉXICA
+      // Análise léxica
       areaLexico.appendChild(
         criarElemento("h3", "Análise Léxica")
       );
@@ -702,7 +1667,9 @@ print(valor)</textarea>
           sucessoLexico
             ? "Análise léxica concluída sem erros."
             : "Foram encontrados erros léxicos.",
-          sucessoLexico ? "success-message" : "error-message"
+          sucessoLexico
+            ? "success-message"
+            : "error-message"
         )
       );
 
@@ -718,17 +1685,15 @@ print(valor)</textarea>
         );
       }
 
-      areaLexico.appendChild(
-        criarElemento("h3", `Erros léxicos (${errosLexicos.length})`)
-      );
+    if (errosLexicos.length > 0) {
+  areaLexico.appendChild(
+    criarElemento("h3", `Erros léxicos (${errosLexicos.length})`)
+  );
 
-      mostrarErros(
-        areaLexico,
-        errosLexicos,
-        "Nenhum erro léxico encontrado."
-      );
+  mostrarErros(areaLexico, errosLexicos);
+}
 
-      // ANÁLISE SINTÁTICA
+      // Análise sintática
       areaSintatico.appendChild(
         criarElemento("h3", "Análise Sintática")
       );
@@ -739,9 +1704,14 @@ print(valor)</textarea>
         areaSintatico.appendChild(
           criarElemento(
             "p",
-            "A análise sintática não foi realizada."
+            sintatico?.mensagem ||
+              "A análise sintática não foi realizada.",
+            "muted"
           )
         );
+
+        mostrarResultadoSemantico(data.semantico);
+        mostrarResultadoIR(data.ir);
 
         areaAst.appendChild(
           criarElemento("h3", "Árvore Sintática Abstrata (AST)")
@@ -772,117 +1742,136 @@ print(valor)</textarea>
         )
       );
 
-      areaSintatico.appendChild(
-        criarElemento(
-          "h3",
-          `Erros sintáticos (${errosSintaticos.length})`
-        )
-      );
+     if (errosSintaticos.length > 0) {
+  areaSintatico.appendChild(
+    criarElemento("h3", `Erros sintáticos (${errosSintaticos.length})`)
+  );
 
-      mostrarErros(
-        areaSintatico,
-        errosSintaticos,
-        "Nenhum erro sintático encontrado."
-      );
+  mostrarErros(areaSintatico, errosSintaticos);
+}
 
-      // ÁRVORE SINTÁTICA ABSTRATA
+      // Análise semântica
+      mostrarResultadoSemantico(data.semantico);
+
+      // AST
       areaAst.appendChild(
         criarElemento("h3", "Árvore Sintática Abstrata (AST)")
       );
 
       const ast = sintatico.ast;
 
-      if (ast) {
-        function criarNoVisual(no) {
-          const item = document.createElement("li");
-
-          const caixa = document.createElement("div");
-          caixa.className = "ast-node";
-
-          caixa.appendChild(
-            criarElemento("strong", no.tipo || "NÓ")
-          );
-
-          if (
-            no.atributos &&
-            Object.keys(no.atributos).length > 0
-          ) {
-            Object.entries(no.atributos).forEach(([chave, valor]) => {
-              caixa.appendChild(
-                criarElemento("small", `${chave}: ${valor}`)
-              );
-            });
-          }
-
-          if (no.linha !== undefined) {
-            caixa.appendChild(
-              criarElemento(
-                "small",
-                `Linha ${no.linha}, coluna ${no.coluna ?? "?"}`
-              )
-            );
-          }
-
-          item.appendChild(caixa);
-
-          if (Array.isArray(no.filhos) && no.filhos.length > 0) {
-            const lista = document.createElement("ul");
-
-            no.filhos.forEach((filho) => {
-              lista.appendChild(criarNoVisual(filho));
-            });
-
-            item.appendChild(lista);
-          }
-
-          return item;
-        }
-
-        const visualizacao = document.createElement("div");
-        visualizacao.className = "ast-tree";
-
-        const raiz = document.createElement("ul");
-        raiz.appendChild(criarNoVisual(ast));
-
-        visualizacao.appendChild(raiz);
-        areaAst.appendChild(visualizacao);
-
-        // Mantém o JSON disponível para consulta
-        const detalhes = document.createElement("details");
-        detalhes.className = "ast-json";
-
-        detalhes.appendChild(
-          criarElemento("summary", "Ver AST em JSON")
-        );
-
-        const arvoreJson = document.createElement("pre");
-        arvoreJson.textContent = JSON.stringify(ast, null, 2);
-
-        detalhes.appendChild(arvoreJson);
-        areaAst.appendChild(detalhes);
-
-        astAtual = ast;
-        botaoExportar.disabled = false;
-
-      } else {
+      if (!ast || sintatico.sucesso !== true) {
         areaAst.appendChild(
-          criarElemento("p", "AST não disponível.")
+          criarElemento("p", "AST não disponível para este código.")
         );
 
         astAtual = null;
         botaoExportar.disabled = true;
-      }
-    }
-
-    botaoExportar.addEventListener("click", () => {
-      if (!astAtual) {
+        mostrarResultadoIR(data.ir);
         return;
       }
 
-      const conteudo = JSON.stringify(astAtual, null, 2);
+      function criarNoVisual(no) {
+        const item = document.createElement("li");
+        const caixa = document.createElement("div");
+
+        caixa.className = "ast-node";
+
+        caixa.appendChild(
+          criarElemento("strong", no.tipo || "NÓ")
+        );
+
+        if (no.atributos && typeof no.atributos === "object") {
+          Object.entries(no.atributos).forEach(([chave, valor]) => {
+            caixa.appendChild(
+              criarElemento("small", `${chave}: ${valor}`)
+            );
+          });
+        }
+
+        if (no.linha !== undefined) {
+          caixa.appendChild(
+            criarElemento(
+              "small",
+              `Linha ${no.linha}, coluna ${no.coluna ?? "?"}`
+            )
+          );
+        }
+
+        item.appendChild(caixa);
+
+        if (Array.isArray(no.filhos) && no.filhos.length > 0) {
+          const lista = document.createElement("ul");
+
+          no.filhos.forEach(filho => {
+            lista.appendChild(criarNoVisual(filho));
+          });
+
+          item.appendChild(lista);
+        }
+
+        return item;
+      }
+
+      const visualizacao = document.createElement("div");
+      visualizacao.className = "ast-tree";
+
+      const barraAst = document.createElement("div");
+      barraAst.className = "ast-toolbar";
+
+      const botaoExpandir = criarElemento(
+        "button",
+        "Expandir árvore"
+      );
+
+      botaoExpandir.type = "button";
+      botaoExpandir.className = "secondary";
+
+      botaoExpandir.addEventListener("click", () => {
+        const expandida =
+          visualizacao.classList.toggle("ast-expanded");
+
+        botaoExpandir.textContent = expandida
+          ? "Fechar visualização ampliada"
+          : "Expandir árvore";
+      });
+
+      barraAst.appendChild(botaoExpandir);
+      visualizacao.appendChild(barraAst);
+
+      const raiz = document.createElement("ul");
+      raiz.appendChild(criarNoVisual(ast));
+
+      visualizacao.appendChild(raiz);
+      areaAst.appendChild(visualizacao);
+
+      // JSON da AST
+      const detalhes = document.createElement("details");
+      detalhes.className = "ast-json";
+
+      detalhes.appendChild(
+        criarElemento("summary", "Ver AST em JSON")
+      );
+
+      const arvoreJson = document.createElement("pre");
+      arvoreJson.textContent = JSON.stringify(ast, null, 2);
+
+      detalhes.appendChild(arvoreJson);
+      areaAst.appendChild(detalhes);
+
+      astAtual = ast;
+      botaoExportar.disabled = false;
+
+      // Representação intermediária
+      mostrarResultadoIR(data.ir);
+    }
+
+    // Exportar AST
+    botaoExportar.addEventListener("click", () => {
+      if (!astAtual) return;
 
       const arquivo = new Blob(
-        [conteudo],
+        [JSON.stringify(astAtual, null, 2)],
         { type: "application/json" }
       );
 
@@ -896,13 +1885,38 @@ print(valor)</textarea>
       link.click();
       link.remove();
 
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     });
 
+    // Exportar IR
+    botaoExportarIr.addEventListener("click", () => {
+      if (irAtual === null) return;
+
+      const arquivo = new Blob(
+        [irAtual],
+        { type: "text/plain;charset=utf-8" }
+      );
+
+      const url = URL.createObjectURL(arquivo);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = "representacao-intermediaria.txt";
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+
+    // Enviar código para o backend
     analyze.addEventListener("click", async () => {
       analyze.disabled = true;
       botaoExportar.disabled = true;
+      botaoExportarIr.disabled = true;
       astAtual = null;
+      irAtual = null;
 
       result.textContent = "Enviando código para o backend...";
 
@@ -934,6 +1948,11 @@ print(valor)</textarea>
         }
 
         mostrarResultado(data);
+
+        document.querySelector(".results-area").scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
 
       } catch (error) {
         result.replaceChildren(

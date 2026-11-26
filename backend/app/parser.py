@@ -17,17 +17,19 @@ class ErroSintatico(Exception):
 
 class Parser:
     PRECEDENCIA = {
-        "==": 1,
-        "!=": 1,
-        "<": 1,
-        ">": 1,
-        "<=": 1,
-        ">=": 1,
-        "+": 2,
-        "-": 2,
-        "*": 3,
-        "/": 3,
-        "%": 3,
+        "or": 1,
+        "and": 2,
+        "==": 3,
+        "!=": 3,
+        "<": 3,
+        ">": 3,
+        "<=": 3,
+        ">=": 3,
+        "+": 4,
+        "-": 4,
+        "*": 5,
+        "/": 5,
+        "%": 5,
     }
 
     def __init__(self, tokens: list[dict]):
@@ -47,39 +49,59 @@ class Parser:
 
     def avancar(self):
         token = self.atual()
+
         if token is not None:
             self.posicao += 1
+
         return token
 
     def verificar(self, lexema: str):
         token = self.atual()
-        return token is not None and token["lexema"] == lexema
+
+        return (
+            token is not None
+            and token["lexema"] == lexema
+        )
 
     def aceitar(self, lexema: str):
         if self.verificar(lexema):
             return self.avancar()
+
         return None
 
     def exigir(self, lexema: str):
         token = self.aceitar(lexema)
+
         if token is None:
             atual = self.atual()
-            encontrado = atual["lexema"] if atual else "fim do código"
+            encontrado = (
+                atual["lexema"]
+                if atual
+                else "fim do código"
+            )
+
             raise ErroSintatico(
-                f"Era esperado {lexema!r}, mas foi encontrado {encontrado!r}.",
+                f"Era esperado {lexema!r}, "
+                f"mas foi encontrado {encontrado!r}.",
                 atual,
                 [lexema],
             )
+
         return token
 
     def erro(self, mensagem, esperado=None):
-        raise ErroSintatico(mensagem, self.atual(), esperado)
+        raise ErroSintatico(
+            mensagem,
+            self.atual(),
+            esperado,
+        )
 
     def consumir_fim_instrucao(self, inicio):
         if self.aceitar(";"):
             return
 
         atual = self.atual()
+
         if atual is None or atual["lexema"] == "}":
             return
 
@@ -103,20 +125,16 @@ class Parser:
             posicao_anterior = self.posicao
 
             try:
-                comandos.append(self.declaracao_ou_comando())
+                comandos.append(
+                    self.declaracao_ou_comando()
+                )
+
             except ErroSintatico as erro:
                 self.registrar_erro(erro)
                 self.recuperar()
 
             if self.posicao == posicao_anterior:
                 self.avancar()
-
-        if self.erros:
-            return {
-                "sucesso": False,
-                "ast": None,
-                "erros": self.erros,
-            }
 
         raiz = criar_no(
             "PROGRAMA",
@@ -126,14 +144,19 @@ class Parser:
         )
 
         return {
-            "sucesso": True,
+            "sucesso": len(self.erros) == 0,
             "ast": raiz.to_dict(),
-            "erros": [],
+            "erros": self.erros,
         }
 
     def registrar_erro(self, erro):
         token = erro.token or self.anterior() or {}
-        encontrado = token.get("lexema", "fim do código")
+
+        encontrado = token.get(
+            "lexema",
+            "fim do código",
+        )
+
         linha = token.get("linha", 1)
         coluna = token.get("coluna", 1)
 
@@ -144,8 +167,8 @@ class Parser:
             "encontrado": encontrado,
             "esperado": erro.esperado,
             "mensagem": (
-                f"Erro sintático na linha {linha}, coluna {coluna}: "
-                f"{erro.mensagem}"
+                f"Erro sintático na linha {linha}, "
+                f"coluna {coluna}: {erro.mensagem}"
             ),
         })
 
@@ -167,8 +190,33 @@ class Parser:
 
             self.avancar()
 
+    def recuperar_bloco(self):
+        if self.atual() is None:
+            return
+
+        linha_inicial = self.atual().get("linha", 1)
+
+        while self.atual() is not None:
+            token = self.atual()
+
+            # Preserva o fechamento do bloco.
+            if token["lexema"] == "}":
+                return
+
+            # Consome o ponto e vírgula.
+            if token["lexema"] == ";":
+                self.avancar()
+                return
+
+            # Permite tentar o próximo comando.
+            if token.get("linha", 1) > linha_inicial:
+                return
+
+            self.avancar()
+
     def declaracao_ou_comando(self):
         token = self.atual()
+
         if token is None:
             self.erro("Era esperado um comando.")
 
@@ -210,9 +258,14 @@ class Parser:
         tipo_dado = inicio["lexema"]
 
         identificador = self.atual()
-        if identificador is None or identificador["tipo"] != "IDENTIFICADOR":
+
+        if (
+            identificador is None
+            or identificador["tipo"] != "IDENTIFICADOR"
+        ):
             self.erro(
-                "Era esperado um identificador depois do tipo da variável.",
+                "Era esperado um identificador depois "
+                "do tipo da variável.",
                 ["identificador"],
             )
 
@@ -221,7 +274,9 @@ class Parser:
         filhos = [
             criar_no(
                 "IDENTIFICADOR",
-                atributos={"nome": identificador["lexema"]},
+                atributos={
+                    "nome": identificador["lexema"]
+                },
                 token_inicio=identificador,
                 token_fim=identificador,
             )
@@ -230,14 +285,18 @@ class Parser:
         if self.aceitar("="):
             filhos.append(self.expressao())
 
+        fim = self.anterior()
         self.consumir_fim_instrucao(inicio)
+
+        if self.anterior() is not None:
+            fim = self.anterior()
 
         return criar_no(
             "DECLARACAO_VARIAVEL",
             atributos={"tipoDado": tipo_dado},
             filhos=filhos,
             token_inicio=inicio,
-            token_fim=self.anterior(),
+            token_fim=fim,
         )
 
     def atribuicao(self):
@@ -246,7 +305,12 @@ class Parser:
 
         self.exigir("=")
         valor = self.expressao()
+
+        fim = self.anterior()
         self.consumir_fim_instrucao(inicio)
+
+        if self.anterior() is not None:
+            fim = self.anterior()
 
         identificador = criar_no(
             "IDENTIFICADOR",
@@ -259,7 +323,7 @@ class Parser:
             "ATRIBUICAO",
             filhos=[identificador, valor],
             token_inicio=inicio,
-            token_fim=self.anterior(),
+            token_fim=fim,
         )
 
     def chamada_print(self):
@@ -267,20 +331,21 @@ class Parser:
         self.exigir("(")
 
         argumentos = []
+
         if not self.verificar(")"):
             argumentos.append(self.expressao())
 
             while self.aceitar(","):
                 argumentos.append(self.expressao())
 
-        self.exigir(")")
+        fim = self.exigir(")")
         self.consumir_fim_instrucao(inicio)
 
         return criar_no(
             "CHAMADA_PRINT",
             filhos=argumentos,
             token_inicio=inicio,
-            token_fim=self.anterior(),
+            token_fim=fim,
         )
 
     def retorno(self):
@@ -288,6 +353,7 @@ class Parser:
         filhos = []
 
         atual = self.atual()
+
         if (
             atual is not None
             and atual["lexema"] not in (";", "}")
@@ -295,24 +361,30 @@ class Parser:
         ):
             filhos.append(self.expressao())
 
+        fim = self.anterior()
         self.consumir_fim_instrucao(inicio)
+
+        if self.anterior() is not None:
+            fim = self.anterior()
 
         return criar_no(
             "RETORNO",
             filhos=filhos,
             token_inicio=inicio,
-            token_fim=self.anterior(),
+            token_fim=fim,
         )
 
     def condicional(self):
         inicio = self.avancar()
         condicao = self.expressao()
+
         self.exigir(":")
         bloco_if = self.bloco_indentado(inicio)
 
         filhos = [condicao, bloco_if]
 
         atual = self.atual()
+
         if (
             atual is not None
             and atual["lexema"] == "else"
@@ -325,7 +397,9 @@ class Parser:
 
         return criar_no(
             "CONDICIONAL",
-            atributos={"possuiElse": len(filhos) == 3},
+            atributos={
+                "possuiElse": len(filhos) == 3
+            },
             filhos=filhos,
             token_inicio=inicio,
             token_fim=self.anterior(),
@@ -333,7 +407,9 @@ class Parser:
 
     def repeticao_while(self):
         inicio = self.avancar()
+
         condicao = self.expressao()
+
         self.exigir(":")
         bloco = self.bloco_indentado(inicio)
 
@@ -349,10 +425,26 @@ class Parser:
             inicio_bloco = self.anterior()
             comandos = []
 
-            while self.atual() is not None and not self.verificar("}"):
+            while (
+                self.atual() is not None
+                and not self.verificar("}")
+            ):
                 if self.aceitar(";"):
                     continue
-                comandos.append(self.declaracao_ou_comando())
+
+                posicao_anterior = self.posicao
+
+                try:
+                    comandos.append(
+                        self.declaracao_ou_comando()
+                    )
+
+                except ErroSintatico as erro:
+                    self.registrar_erro(erro)
+                    self.recuperar_bloco()
+
+                if self.posicao == posicao_anterior:
+                    self.avancar()
 
             fim_bloco = self.exigir("}")
 
@@ -364,8 +456,12 @@ class Parser:
             )
 
         primeiro = self.atual()
+
         if primeiro is None:
-            self.erro("Era esperado um bloco depois de ':'.", ["indentação"])
+            self.erro(
+                "Era esperado um bloco depois de ':'.",
+                ["indentação"],
+            )
 
         if primeiro.get("linha", 0) <= cabecalho.get("linha", 0):
             self.erro(
@@ -385,10 +481,24 @@ class Parser:
             if atual["lexema"] == "else":
                 break
 
-            comandos.append(self.declaracao_ou_comando())
+            posicao_anterior = self.posicao
+
+            try:
+                comandos.append(
+                    self.declaracao_ou_comando()
+                )
+
+            except ErroSintatico as erro:
+                self.registrar_erro(erro)
+                self.recuperar_bloco()
+
+            if self.posicao == posicao_anterior:
+                self.avancar()
 
         if not comandos:
-            self.erro("O bloco precisa conter pelo menos um comando.")
+            self.erro(
+                "O bloco precisa conter pelo menos um comando."
+            )
 
         return criar_no(
             "BLOCO",
@@ -402,7 +512,10 @@ class Parser:
 
         while self.atual() is not None:
             operador = self.atual()["lexema"]
-            precedencia = self.PRECEDENCIA.get(operador, 0)
+            precedencia = self.PRECEDENCIA.get(
+                operador,
+                0,
+            )
 
             if precedencia < nivel_minimo:
                 break
@@ -410,11 +523,19 @@ class Parser:
             token_operador = self.avancar()
             direita = self.expressao(precedencia + 1)
 
+            inicio_operacao = {
+                "linha": esquerda.linha,
+                "coluna": esquerda.coluna,
+                "lexema": "",
+            }
+
             esquerda = criar_no(
                 "OPERACAO_BINARIA",
-                atributos={"operador": token_operador["lexema"]},
+                atributos={
+                    "operador": token_operador["lexema"]
+                },
                 filhos=[esquerda, direita],
-                token_inicio=esquerda_posicao(esquerda),
+                token_inicio=inicio_operacao,
                 token_fim=self.anterior(),
             )
 
@@ -425,22 +546,40 @@ class Parser:
 
         if token is None:
             self.erro(
-                "A expressão terminou antes de receber um operando.",
-                ["identificador", "número", "("],
+                "A expressão terminou antes de receber "
+                "um operando.",
+                [
+                    "identificador",
+                    "número",
+                    "(",
+                ],
             )
 
-        if token["lexema"] in ("+", "-"):
+        # Operadores unários.
+        if token["lexema"] in (
+            "+",
+            "-",
+            "!",
+            "not",
+        ):
             operador = self.avancar()
             operando = self.fator()
 
             return criar_no(
                 "OPERACAO_UNARIA",
-                atributos={"operador": operador["lexema"]},
+                atributos={
+                    "operador": (
+                        "not"
+                        if operador["lexema"] == "!"
+                        else operador["lexema"]
+                    )
+                },
                 filhos=[operando],
                 token_inicio=operador,
                 token_fim=self.anterior(),
             )
 
+        # Expressões entre parênteses.
         if token["lexema"] == "(":
             inicio = self.avancar()
             expressao = self.expressao()
@@ -453,54 +592,72 @@ class Parser:
                 token_fim=fim,
             )
 
+        # Números inteiros.
         if token["tipo"] == "LITERAL_INTEIRO":
             self.avancar()
+
             return criar_no(
                 "LITERAL_INTEIRO",
-                atributos={"valor": int(token["lexema"])},
+                atributos={
+                    "valor": int(token["lexema"])
+                },
                 token_inicio=token,
                 token_fim=token,
             )
 
+        # Números reais.
         if token["tipo"] == "LITERAL_REAL":
             self.avancar()
+
             return criar_no(
                 "LITERAL_REAL",
-                atributos={"valor": float(token["lexema"])},
+                atributos={
+                    "valor": float(token["lexema"])
+                },
                 token_inicio=token,
                 token_fim=token,
             )
 
-        if token["lexema"] in ("True", "False"):
+        # Valores booleanos.
+        if token["lexema"] in (
+            "True",
+            "False",
+        ):
             self.avancar()
+
             return criar_no(
                 "LITERAL_BOOLEANO",
-                atributos={"valor": token["lexema"] == "True"},
+                atributos={
+                    "valor": token["lexema"] == "True"
+                },
                 token_inicio=token,
                 token_fim=token,
             )
 
+        # Identificadores.
         if token["tipo"] == "IDENTIFICADOR":
             self.avancar()
+
             return criar_no(
                 "IDENTIFICADOR",
-                atributos={"nome": token["lexema"]},
+                atributos={
+                    "nome": token["lexema"]
+                },
                 token_inicio=token,
                 token_fim=token,
             )
 
         self.erro(
-            f"Era esperado um operando, mas foi encontrado {token['lexema']!r}.",
-            ["identificador", "número", "True", "False", "("],
+            f"Era esperado um operando, mas foi encontrado "
+            f"{token['lexema']!r}.",
+            [
+                "identificador",
+                "número",
+                "True",
+                "False",
+                "(",
+            ],
         )
-
-
-def esquerda_posicao(no):
-    return {
-        "linha": getattr(no, "linha", 1),
-        "coluna": getattr(no, "coluna", 1),
-        "lexema": "",
-    }
 
 
 def analisar_sintaticamente(tokens: list[dict]) -> dict:
